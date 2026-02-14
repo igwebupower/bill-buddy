@@ -68,8 +68,9 @@ export async function GET(request: NextRequest) {
       take,
     });
 
+    const items = data?.items ?? [];
     return NextResponse.json({
-      items: data.items.map((bill) => ({
+      items: items.map((bill) => ({
         id: String(bill.billId),
         parliamentId: bill.billId,
         shortTitle: bill.shortTitle,
@@ -95,10 +96,10 @@ export async function GET(request: NextRequest) {
           : [],
         summaries: [],
       })),
-      totalResults: data.totalResults,
+      totalResults: data?.totalResults ?? 0,
       currentPage: page,
       itemsPerPage: take,
-      totalPages: Math.ceil(data.totalResults / take),
+      totalPages: Math.ceil((data?.totalResults ?? 0) / take),
     });
   } catch (error) {
     console.error("Error fetching bills:", error);
@@ -112,8 +113,9 @@ export async function GET(request: NextRequest) {
         take,
       });
 
+      const fallbackItems = data?.items ?? [];
       return NextResponse.json({
-        items: data.items.map((bill) => ({
+        items: fallbackItems.map((bill) => ({
           id: String(bill.billId),
           parliamentId: bill.billId,
           shortTitle: bill.shortTitle,
@@ -124,7 +126,7 @@ export async function GET(request: NextRequest) {
           isAct: bill.isAct,
           isDefeated: bill.isDefeated,
           lastUpdate: bill.lastUpdate,
-          sponsors: bill.sponsors.map((s) => ({
+          sponsors: (bill.sponsors ?? []).map((s) => ({
             name: s.member?.name || s.organisation?.name || "Unknown",
             party: s.member?.party || null,
             photoUrl: s.member?.memberPhoto || null,
@@ -139,10 +141,10 @@ export async function GET(request: NextRequest) {
             : [],
           summaries: [],
         })),
-        totalResults: data.totalResults,
+        totalResults: data?.totalResults ?? 0,
         currentPage: page,
         itemsPerPage: take,
-        totalPages: Math.ceil(data.totalResults / take),
+        totalPages: Math.ceil((data?.totalResults ?? 0) / take),
       });
     } catch (apiError) {
       console.error("Parliament API also failed:", apiError);
