@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -11,16 +10,14 @@ import { SummarySection } from "@/components/bills/SummarySection";
 import { StageTimeline } from "@/components/bills/StageTimeline";
 import { TrackButton } from "@/components/bills/TrackButton";
 import { ShareDialog } from "@/components/bills/ShareDialog";
+import { GlassCard } from "@/components/shared/GlassCard";
 import { getHouseColor } from "@/lib/parliament/client";
 import { cn } from "@/lib/utils";
 import {
   ArrowLeft,
-  Calendar,
   ExternalLink,
   ScrollText,
   User,
-  BookmarkPlus,
-  Share2,
   FileText,
 } from "lucide-react";
 import Link from "next/link";
@@ -132,8 +129,11 @@ export function BillDetailClient({ id }: BillDetailClientProps) {
       className="mx-auto max-w-4xl space-y-6"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ type: "spring", stiffness: 260, damping: 24 }}
     >
+      {/* Gradient accent bar */}
+      <div className="h-1 w-full rounded-full bg-gradient-to-r from-gradient-from via-gradient-via to-gradient-to opacity-60" />
+
       {/* Back link */}
       <Link
         href="/bills"
@@ -149,8 +149,16 @@ export function BillDetailClient({ id }: BillDetailClientProps) {
           {bill.currentHouse && (
             <Badge
               variant="outline"
-              className={cn("text-xs", getHouseColor(bill.currentHouse))}
+              className={cn("text-xs gap-1.5", getHouseColor(bill.currentHouse))}
             >
+              <span
+                className={cn(
+                  "h-1.5 w-1.5 rounded-full",
+                  bill.currentHouse === "Commons"
+                    ? "bg-commons-text"
+                    : "bg-lords-text"
+                )}
+              />
               {bill.currentHouse}
             </Badge>
           )}
@@ -160,7 +168,7 @@ export function BillDetailClient({ id }: BillDetailClientProps) {
             </Badge>
           )}
           {bill.isAct && (
-            <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/30 text-xs">
+            <Badge className="bg-commons-bg text-commons-text border-commons-text/30 text-xs">
               Act of Parliament
             </Badge>
           )}
@@ -197,7 +205,7 @@ export function BillDetailClient({ id }: BillDetailClientProps) {
         </div>
       </div>
 
-      <Separator />
+      <Separator className="opacity-50" />
 
       {/* Main content */}
       <div className="grid gap-6 lg:grid-cols-3">
@@ -215,23 +223,23 @@ export function BillDetailClient({ id }: BillDetailClientProps) {
         {/* Right: Sidebar */}
         <div className="space-y-6">
           {/* Stage Timeline */}
-          <Card className="p-5">
+          <GlassCard>
             <h3 className="text-sm font-semibold mb-4">Progress</h3>
             <StageTimeline
               stages={bill.stages}
               currentStage={bill.currentStage}
             />
-          </Card>
+          </GlassCard>
 
           {/* Sponsors */}
           {bill.sponsors.length > 0 && (
-            <Card className="p-5">
+            <GlassCard>
               <h3 className="text-sm font-semibold mb-3">Sponsors</h3>
               <div className="space-y-3">
                 {bill.sponsors.map((sponsor, i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
-                      <User className="h-4 w-4 text-muted-foreground" />
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-gradient-from/20 to-gradient-via/20 ring-1 ring-glass-border">
+                      <User className="h-4 w-4 text-primary" />
                     </div>
                     <div>
                       <p className="text-sm font-medium">{sponsor.name}</p>
@@ -247,12 +255,12 @@ export function BillDetailClient({ id }: BillDetailClientProps) {
                   </div>
                 ))}
               </div>
-            </Card>
+            </GlassCard>
           )}
 
           {/* Publications */}
           {bill.publications && bill.publications.length > 0 && (
-            <Card className="p-5">
+            <GlassCard>
               <h3 className="text-sm font-semibold mb-3">Documents</h3>
               <div className="space-y-2">
                 {bill.publications.map((pub, i) => (
@@ -269,11 +277,11 @@ export function BillDetailClient({ id }: BillDetailClientProps) {
                   </a>
                 ))}
               </div>
-            </Card>
+            </GlassCard>
           )}
 
           {/* Meta */}
-          <Card className="p-5">
+          <GlassCard>
             <h3 className="text-sm font-semibold mb-3">Details</h3>
             <dl className="space-y-2 text-sm">
               {bill.currentStage && (
@@ -291,7 +299,7 @@ export function BillDetailClient({ id }: BillDetailClientProps) {
               {bill.lastUpdate && (
                 <div>
                   <dt className="text-muted-foreground">Last Updated</dt>
-                  <dd className="font-medium">
+                  <dd className="font-medium font-mono-numbers">
                     {new Date(bill.lastUpdate).toLocaleDateString("en-GB", {
                       day: "numeric",
                       month: "long",
@@ -301,7 +309,7 @@ export function BillDetailClient({ id }: BillDetailClientProps) {
                 </div>
               )}
             </dl>
-          </Card>
+          </GlassCard>
         </div>
       </div>
     </motion.div>

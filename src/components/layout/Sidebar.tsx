@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import {
   ScrollText,
   Home,
-  Search,
   BookmarkCheck,
   BarChart3,
   Tags,
@@ -13,6 +12,7 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 const navItems = [
   { href: "/", label: "Home", icon: Home },
@@ -34,25 +34,30 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   return (
     <>
       {/* Mobile overlay */}
-      {open && (
-        <div
-          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
-          onClick={onClose}
-        />
-      )}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+            onClick={onClose}
+          />
+        )}
+      </AnimatePresence>
 
       <aside
         data-slot="sidebar"
         className={cn(
-          "fixed top-0 left-0 z-50 flex h-full w-64 flex-col border-r border-border bg-sidebar transition-transform duration-300 lg:sticky lg:translate-x-0",
+          "fixed top-0 left-0 z-50 flex h-full w-64 flex-col border-r border-glass-border bg-surface-1/80 backdrop-blur-xl transition-transform duration-300 lg:sticky lg:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full"
         )}
       >
         {/* Logo */}
-        <div className="flex h-16 items-center justify-between border-b border-border px-5">
+        <div className="flex h-16 items-center justify-between border-b border-glass-border px-5">
           <Link href="/" className="flex items-center gap-2.5" onClick={onClose}>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <ScrollText className="h-4.5 w-4.5 text-primary-foreground" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-gradient-from via-gradient-via to-gradient-to shadow-glow">
+              <ScrollText className="h-4.5 w-4.5 text-white" />
             </div>
             <span className="text-lg font-semibold tracking-tight">
               Bill Buddy
@@ -80,21 +85,32 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                 href={item.href}
                 onClick={onClose}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                  "relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                   isActive
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                    ? "text-primary"
+                    : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
                 )}
               >
-                <item.icon className="h-4.5 w-4.5" />
-                {item.label}
+                {isActive && (
+                  <motion.div
+                    layoutId="sidebar-active"
+                    className="absolute inset-0 rounded-lg bg-primary/10 shadow-[inset_0_0_12px_oklch(0.6_0.18_240_/_10%)]"
+                    transition={{
+                      type: "spring",
+                      stiffness: 350,
+                      damping: 30,
+                    }}
+                  />
+                )}
+                <item.icon className="relative h-4.5 w-4.5" />
+                <span className="relative">{item.label}</span>
               </Link>
             );
           })}
         </nav>
 
         {/* Footer */}
-        <div className="border-t border-border p-4">
+        <div className="border-t border-glass-border p-4">
           <p className="text-xs text-muted-foreground">
             Data from UK Parliament API
           </p>

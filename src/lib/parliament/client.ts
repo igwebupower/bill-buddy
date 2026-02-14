@@ -98,13 +98,13 @@ export function getBillTypeLabel(category: string): string {
   return labels[category] || category;
 }
 
-// Get house badge color
+// Get house badge color (muted sage/rose)
 export function getHouseColor(house: string | null): string {
   switch (house) {
     case "Commons":
-      return "bg-green-500/15 text-green-400 border-green-500/30";
+      return "bg-commons-bg text-commons-text border-commons-text/30";
     case "Lords":
-      return "bg-red-500/15 text-red-400 border-red-500/30";
+      return "bg-lords-bg text-lords-text border-lords-text/30";
     default:
       return "bg-muted text-muted-foreground border-border";
   }

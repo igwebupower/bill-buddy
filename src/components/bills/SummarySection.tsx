@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sparkles, RefreshCw, AlertCircle, Users, List, Target, Clock } from "lucide-react";
+import { GlassCard } from "@/components/shared/GlassCard";
 
 interface Summary {
   overview: string;
@@ -65,23 +66,25 @@ export function SummarySection({ billId, existingSummary }: SummarySectionProps)
 
   if (loading) {
     return (
-      <Card className="p-6 space-y-4">
-        <div className="flex items-center gap-2 text-primary">
-          <Sparkles className="h-5 w-5 animate-pulse" />
-          <span className="text-sm font-medium">Generating AI summary...</span>
+      <GlassCard>
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 text-primary">
+            <Sparkles className="h-5 w-5 animate-pulse" />
+            <span className="text-sm font-medium">Generating AI summary...</span>
+          </div>
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-5/6" />
+          <Skeleton className="h-4 w-4/6" />
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-4 w-3/4" />
         </div>
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-5/6" />
-        <Skeleton className="h-4 w-4/6" />
-        <Skeleton className="h-20 w-full" />
-        <Skeleton className="h-4 w-3/4" />
-      </Card>
+      </GlassCard>
     );
   }
 
   if (!summary) {
     return (
-      <Card className="p-6 text-center">
+      <GlassCard className="text-center">
         <Sparkles className="h-10 w-10 text-primary mx-auto mb-3" />
         <h3 className="font-semibold mb-1">No summary available yet</h3>
         <p className="text-sm text-muted-foreground mb-4">
@@ -97,22 +100,23 @@ export function SummarySection({ billId, existingSummary }: SummarySectionProps)
             {error}
           </p>
         )}
-      </Card>
+      </GlassCard>
     );
   }
 
   return (
     <div className="space-y-4">
-      {/* TLDR */}
-      <Card className="p-4 border-primary/20 bg-primary/5">
-        <div className="flex items-start gap-2">
+      {/* TLDR with gradient left accent */}
+      <div className="glass relative overflow-hidden rounded-xl p-4">
+        <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-gradient-from via-gradient-via to-gradient-to" />
+        <div className="flex items-start gap-2 pl-3">
           <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
           <div>
             <p className="text-xs font-medium text-primary mb-1">TL;DR</p>
             <p className="text-sm font-medium">{summary.tldr}</p>
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* Tabs */}
       <Tabs defaultValue="overview" className="w-full">
@@ -158,7 +162,7 @@ export function SummarySection({ billId, existingSummary }: SummarySectionProps)
           <ul className="space-y-3">
             {keyChanges.map((change, i) => (
               <li key={i} className="flex gap-3">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-medium text-primary">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-gradient-from to-gradient-via text-xs font-medium text-white">
                   {i + 1}
                 </span>
                 <p className="text-sm leading-relaxed pt-0.5">{change}</p>
@@ -170,14 +174,14 @@ export function SummarySection({ billId, existingSummary }: SummarySectionProps)
         <TabsContent value="impacts" className="mt-4">
           <div className="grid gap-3 sm:grid-cols-2">
             {impacts.map((impact, i) => (
-              <Card key={i} className="p-4 border-border/50">
+              <GlassCard key={i} className="p-4">
                 <Badge variant="secondary" className="mb-2">
                   {impact.group}
                 </Badge>
                 <p className="text-sm text-muted-foreground">
                   {impact.impact}
                 </p>
-              </Card>
+              </GlassCard>
             ))}
           </div>
         </TabsContent>

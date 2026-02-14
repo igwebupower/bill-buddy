@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -86,7 +85,7 @@ export function TrackedBillsClient() {
 
   if (items.length === 0) {
     return (
-      <Card className="p-12 text-center">
+      <div className="glass rounded-xl p-12 text-center">
         <BookmarkCheck className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
         <h3 className="text-lg font-medium mb-1">No tracked bills</h3>
         <p className="text-sm text-muted-foreground mb-6">
@@ -98,16 +97,16 @@ export function TrackedBillsClient() {
             <ArrowRight className="h-4 w-4 ml-2" />
           </Link>
         </Button>
-      </Card>
+      </div>
     );
   }
 
   return (
     <div className="space-y-3">
       {items.map((item) => (
-        <Card
+        <div
           key={item.id}
-          className="p-4 flex items-center gap-4 border-border/50 hover:border-primary/20 transition-colors"
+          className="glass gradient-border glass-hover rounded-xl p-4 flex items-center gap-4 transition-all"
         >
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
@@ -115,15 +114,23 @@ export function TrackedBillsClient() {
                 <Badge
                   variant="outline"
                   className={cn(
-                    "text-xs",
+                    "text-xs gap-1.5",
                     getHouseColor(item.bill.currentHouse)
                   )}
                 >
+                  <span
+                    className={cn(
+                      "h-1.5 w-1.5 rounded-full",
+                      item.bill.currentHouse === "Commons"
+                        ? "bg-commons-text"
+                        : "bg-lords-text"
+                    )}
+                  />
                   {item.bill.currentHouse}
                 </Badge>
               )}
               {item.bill.isAct && (
-                <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/30 text-xs">
+                <Badge className="bg-commons-bg text-commons-text border-commons-text/30 text-xs">
                   Act
                 </Badge>
               )}
@@ -157,7 +164,7 @@ export function TrackedBillsClient() {
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
-        </Card>
+        </div>
       ))}
     </div>
   );

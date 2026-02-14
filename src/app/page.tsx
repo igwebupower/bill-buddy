@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BillCard } from "@/components/bills/BillCard";
 import { BillCardSkeleton } from "@/components/bills/BillCardSkeleton";
+import { GlassCard } from "@/components/shared/GlassCard";
+import { AnimatedCounter } from "@/components/shared/AnimatedCounter";
 import {
   Search,
   ScrollText,
@@ -20,14 +20,14 @@ import {
   Sparkles,
 } from "lucide-react";
 
-const fadeUp = {
+const springIn = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5 },
+  transition: { type: "spring", stiffness: 200, damping: 22 },
 };
 
 const stagger = {
-  animate: { transition: { staggerChildren: 0.1 } },
+  animate: { transition: { staggerChildren: 0.08 } },
 };
 
 const features = [
@@ -55,6 +55,12 @@ const features = [
     description:
       "Read summaries in Welsh, Urdu, Polish, Arabic and more",
   },
+];
+
+const stats = [
+  { label: "Bills Tracked", value: 350, suffix: "+" },
+  { label: "AI Summaries", value: 120, suffix: "+" },
+  { label: "Languages", value: 5 },
 ];
 
 interface FeaturedBill {
@@ -102,33 +108,37 @@ export default function HomePage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-16">
-      {/* Hero */}
+      {/* Hero with gradient mesh */}
       <motion.section
-        className="relative flex flex-col items-center text-center pt-8 pb-4"
+        className="relative flex flex-col items-center text-center pt-8 pb-4 overflow-hidden"
         initial="initial"
         animate="animate"
         variants={stagger}
       >
-        <motion.div variants={fadeUp} className="mb-6">
+        {/* Background effects */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-mesh opacity-60" />
+        <div className="pointer-events-none absolute inset-0 bg-dot-pattern opacity-30" />
+
+        <motion.div variants={springIn} className="relative mb-6">
           <Badge
             variant="outline"
-            className="px-3 py-1 text-sm border-primary/30 text-primary"
+            className="glass px-3 py-1 text-sm border-gradient-from/30 text-primary"
           >
             UK Parliamentary Bills
           </Badge>
         </motion.div>
 
         <motion.h1
-          variants={fadeUp}
-          className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl"
+          variants={springIn}
+          className="relative text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl"
         >
           Legislation,{" "}
-          <span className="text-primary">simplified</span>
+          <span className="text-gradient">simplified</span>
         </motion.h1>
 
         <motion.p
-          variants={fadeUp}
-          className="mt-4 max-w-xl text-lg text-muted-foreground"
+          variants={springIn}
+          className="relative mt-4 max-w-xl text-lg text-muted-foreground"
         >
           AI-powered plain-English summaries of UK Parliamentary bills.
           Track legislation, get alerts, and understand how new laws affect you.
@@ -136,18 +146,18 @@ export default function HomePage() {
 
         {/* Search */}
         <motion.form
-          variants={fadeUp}
+          variants={springIn}
           onSubmit={handleSearch}
-          className="mt-8 flex w-full max-w-md gap-2"
+          className="relative mt-8 flex w-full max-w-md gap-2"
         >
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
+          <div className="glass relative flex-1 flex items-center rounded-lg transition-all focus-within:shadow-glow">
+            <Search className="absolute left-3 h-4 w-4 text-muted-foreground" />
+            <input
               type="search"
               placeholder="Search for a bill..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="pl-9 h-11"
+              className="h-11 w-full rounded-lg bg-transparent pl-9 pr-4 text-sm outline-none placeholder:text-muted-foreground"
             />
           </div>
           <Button type="submit" size="lg">
@@ -155,7 +165,10 @@ export default function HomePage() {
           </Button>
         </motion.form>
 
-        <motion.div variants={fadeUp} className="mt-4 flex gap-3 text-sm text-muted-foreground">
+        <motion.div
+          variants={springIn}
+          className="relative mt-4 flex gap-3 text-sm text-muted-foreground"
+        >
           <span>Try:</span>
           {["Renters", "AI", "NHS"].map((term) => (
             <button
@@ -169,6 +182,28 @@ export default function HomePage() {
         </motion.div>
       </motion.section>
 
+      {/* Stats row */}
+      <motion.section
+        className="grid grid-cols-3 gap-4"
+        initial="initial"
+        whileInView="animate"
+        viewport={{ once: true }}
+        variants={stagger}
+      >
+        {stats.map((stat) => (
+          <motion.div key={stat.label} variants={springIn}>
+            <GlassCard className="text-center py-6">
+              <AnimatedCounter
+                value={stat.value}
+                suffix={stat.suffix}
+                className="text-2xl font-bold text-gradient font-mono-numbers"
+              />
+              <p className="text-xs text-muted-foreground mt-1">{stat.label}</p>
+            </GlassCard>
+          </motion.div>
+        ))}
+      </motion.section>
+
       {/* Features */}
       <motion.section
         initial="initial"
@@ -178,14 +213,16 @@ export default function HomePage() {
         className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
       >
         {features.map((feature) => (
-          <motion.div key={feature.title} variants={fadeUp}>
-            <Card className="p-5 border-border/50 bg-card/30 h-full">
-              <feature.icon className="h-8 w-8 text-primary mb-3" />
+          <motion.div key={feature.title} variants={springIn}>
+            <GlassCard gradientBorder className="h-full">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-gradient-from/20 to-gradient-via/20 mb-3">
+                <feature.icon className="h-5 w-5 text-primary" />
+              </div>
               <h3 className="font-semibold mb-1">{feature.title}</h3>
               <p className="text-sm text-muted-foreground">
                 {feature.description}
               </p>
-            </Card>
+            </GlassCard>
           </motion.div>
         ))}
       </motion.section>
@@ -220,21 +257,28 @@ export default function HomePage() {
 
       {/* CTA */}
       <section className="text-center pb-8">
-        <Card className="p-8 border-primary/20 bg-primary/5">
-          <ScrollText className="h-10 w-10 text-primary mx-auto mb-4" />
-          <h2 className="text-xl font-semibold mb-2">
-            Stay informed about UK legislation
-          </h2>
-          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-            Track bills through Parliament, get push notifications for stage changes, and share plain-English summaries.
-          </p>
-          <Button asChild size="lg">
-            <Link href="/bills">
-              Browse Bills
-              <ArrowRight className="h-4 w-4 ml-2" />
-            </Link>
-          </Button>
-        </Card>
+        <div className="glass relative overflow-hidden rounded-2xl p-8">
+          <div className="pointer-events-none absolute inset-0 bg-gradient-mesh opacity-40" />
+          <div className="pointer-events-none absolute inset-0 bg-dot-pattern opacity-20" />
+          <div className="relative">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-gradient-from via-gradient-via to-gradient-to shadow-glow">
+              <ScrollText className="h-6 w-6 text-white" />
+            </div>
+            <h2 className="text-xl font-semibold mb-2">
+              Stay informed about UK legislation
+            </h2>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+              Track bills through Parliament, get push notifications for stage
+              changes, and share plain-English summaries.
+            </p>
+            <Button asChild size="lg">
+              <Link href="/bills">
+                Browse Bills
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Link>
+            </Button>
+          </div>
+        </div>
       </section>
     </div>
   );

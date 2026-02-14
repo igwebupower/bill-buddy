@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Card } from "@/components/ui/card";
 import {
   Heart,
   GraduationCap,
@@ -23,6 +22,7 @@ interface Topic {
   name: string;
   icon: LucideIcon;
   description: string;
+  span?: string;
 }
 
 const topics: Topic[] = [
@@ -30,6 +30,7 @@ const topics: Topic[] = [
     name: "Health",
     icon: Heart,
     description: "NHS, public health, mental health, and medical regulation",
+    span: "sm:col-span-2 lg:col-span-1",
   },
   {
     name: "Education",
@@ -40,6 +41,7 @@ const topics: Topic[] = [
     name: "Housing",
     icon: Home,
     description: "Planning, tenants' rights, building safety, and homelessness",
+    span: "lg:col-span-2",
   },
   {
     name: "Transport",
@@ -65,6 +67,7 @@ const topics: Topic[] = [
     name: "Immigration",
     icon: Globe,
     description: "Asylum, visas, citizenship, and border control",
+    span: "sm:col-span-2 lg:col-span-1",
   },
   {
     name: "Justice",
@@ -75,6 +78,7 @@ const topics: Topic[] = [
     name: "Technology",
     icon: Cpu,
     description: "Digital regulation, AI, data protection, and online safety",
+    span: "lg:col-span-2",
   },
   {
     name: "Employment",
@@ -91,17 +95,18 @@ const topics: Topic[] = [
 const container = {
   animate: {
     transition: {
-      staggerChildren: 0.06,
+      staggerChildren: 0.05,
     },
   },
 };
 
 const item = {
-  initial: { opacity: 0, y: 20 },
+  initial: { opacity: 0, y: 16, scale: 0.97 },
   animate: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.4, ease: "easeOut" as const },
+    scale: 1,
+    transition: { type: "spring" as const, stiffness: 220, damping: 22 },
   },
 };
 
@@ -120,8 +125,8 @@ export function TopicsClient() {
       variants={container}
     >
       {topics.map((topic) => (
-        <motion.div key={topic.name} variants={item}>
-          <Card
+        <motion.div key={topic.name} variants={item} className={topic.span}>
+          <div
             role="button"
             tabIndex={0}
             onClick={() => handleTopicClick(topic.name)}
@@ -131,10 +136,10 @@ export function TopicsClient() {
                 handleTopicClick(topic.name);
               }
             }}
-            className="group relative cursor-pointer p-6 border-border/50 bg-card/30 transition-all duration-300 hover:border-primary/40 hover:shadow-[0_0_20px_oklch(0.6_0.18_240_/_0.12)] hover:-translate-y-0.5"
+            className="group glass gradient-border glass-hover relative h-full cursor-pointer rounded-xl p-6 transition-all duration-300 hover:shadow-glow hover:-translate-y-0.5"
           >
             <div className="flex flex-col gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors duration-300 group-hover:bg-primary/20">
+              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-gradient-to-br from-gradient-from/15 to-gradient-via/15 text-primary transition-all duration-300 group-hover:from-gradient-from/25 group-hover:to-gradient-via/25 group-hover:shadow-[0_0_16px_var(--glow-color)]">
                 <topic.icon className="h-5 w-5" />
               </div>
 
@@ -147,7 +152,7 @@ export function TopicsClient() {
                 </p>
               </div>
             </div>
-          </Card>
+          </div>
         </motion.div>
       ))}
     </motion.div>

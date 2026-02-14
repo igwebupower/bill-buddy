@@ -3,7 +3,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -47,10 +46,6 @@ function groupBillsByMonth(bills: TimelineBill[]): MonthGroup[] {
   for (const bill of bills) {
     const date = bill.lastUpdate ? new Date(bill.lastUpdate) : new Date();
     const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-    const label = date.toLocaleDateString("en-GB", {
-      month: "long",
-      year: "numeric",
-    });
 
     if (!grouped[key]) {
       grouped[key] = [];
@@ -75,9 +70,9 @@ function groupBillsByMonth(bills: TimelineBill[]): MonthGroup[] {
 function getBarColor(house: string | null): string {
   switch (house) {
     case "Commons":
-      return "bg-green-500/80";
+      return "bg-gradient-to-r from-commons-text/60 to-commons-text/90";
     case "Lords":
-      return "bg-red-500/80";
+      return "bg-gradient-to-r from-lords-text/60 to-lords-text/90";
     default:
       return "bg-muted-foreground/50";
   }
@@ -86,9 +81,9 @@ function getBarColor(house: string | null): string {
 function getBarTrackColor(house: string | null): string {
   switch (house) {
     case "Commons":
-      return "bg-green-500/15";
+      return "bg-commons-bg";
     case "Lords":
-      return "bg-red-500/15";
+      return "bg-lords-bg";
     default:
       return "bg-muted/50";
   }
@@ -97,7 +92,7 @@ function getBarTrackColor(house: string | null): string {
 const fadeUp = {
   initial: { opacity: 0, y: 12 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.3 },
+  transition: { type: "spring", stiffness: 200, damping: 22 },
 };
 
 const stagger = {
@@ -158,7 +153,7 @@ export function TimelineClient() {
 
   if (bills.length === 0) {
     return (
-      <Card className="p-12 text-center">
+      <div className="glass rounded-xl p-12 text-center">
         <ScrollText className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
         <h3 className="text-lg font-medium mb-1">No bills to display</h3>
         <p className="text-sm text-muted-foreground mb-6">
@@ -170,7 +165,7 @@ export function TimelineClient() {
             <ArrowRight className="h-4 w-4 ml-2" />
           </a>
         </Button>
-      </Card>
+      </div>
     );
   }
 
@@ -189,7 +184,7 @@ export function TimelineClient() {
                 onClick={() => setHouseFilter(filter)}
                 className={cn(
                   "text-xs h-8",
-                  houseFilter !== filter && "border-border/50"
+                  houseFilter !== filter && "border-glass-border glass"
                 )}
               >
                 {filter === "all" ? "All Houses" : filter}
@@ -202,7 +197,7 @@ export function TimelineClient() {
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8 border-border/50"
+            className="h-8 w-8 border-glass-border glass"
             onClick={() => scrollTimeline("left")}
           >
             <ChevronLeft className="h-4 w-4" />
@@ -210,7 +205,7 @@ export function TimelineClient() {
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8 border-border/50"
+            className="h-8 w-8 border-glass-border glass"
             onClick={() => scrollTimeline("right")}
           >
             <ChevronRight className="h-4 w-4" />
@@ -221,11 +216,11 @@ export function TimelineClient() {
       {/* Legend */}
       <div className="flex items-center gap-4 text-xs text-muted-foreground">
         <div className="flex items-center gap-1.5">
-          <div className="h-2.5 w-2.5 rounded-sm bg-green-500/80" />
+          <div className="h-2.5 w-2.5 rounded-sm bg-commons-text/80" />
           <span>Commons</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="h-2.5 w-2.5 rounded-sm bg-red-500/80" />
+          <div className="h-2.5 w-2.5 rounded-sm bg-lords-text/80" />
           <span>Lords</span>
         </div>
         <div className="ml-auto text-muted-foreground/60">
@@ -234,7 +229,7 @@ export function TimelineClient() {
       </div>
 
       {/* Horizontal scrollable timeline */}
-      <Card className="border-border/50 bg-card/30 overflow-hidden">
+      <div className="glass rounded-xl overflow-hidden">
         <ScrollArea className="w-full">
           <div ref={scrollRef} className="overflow-x-auto">
             <div className="flex min-w-max">
@@ -243,14 +238,16 @@ export function TimelineClient() {
                   key={group.sortKey}
                   className={cn(
                     "flex-shrink-0 w-[340px]",
-                    groupIdx < monthGroups.length - 1 && "border-r border-border/30"
+                    groupIdx < monthGroups.length - 1 &&
+                      "border-r border-glass-border"
                   )}
                 >
                   {/* Month header */}
-                  <div className="sticky top-0 z-10 bg-card/80 backdrop-blur-sm border-b border-border/30 px-4 py-3">
+                  <div className="sticky top-0 z-10 glass border-b border-glass-border px-4 py-3">
                     <h3 className="text-sm font-semibold">{group.label}</h3>
-                    <p className="text-xs text-muted-foreground">
-                      {group.bills.length} bill{group.bills.length !== 1 ? "s" : ""}
+                    <p className="text-xs text-muted-foreground font-mono-numbers">
+                      {group.bills.length} bill
+                      {group.bills.length !== 1 ? "s" : ""}
                     </p>
                   </div>
 
@@ -268,7 +265,7 @@ export function TimelineClient() {
                         <motion.div
                           key={bill.parliamentId}
                           variants={fadeUp}
-                          className="group cursor-pointer rounded-lg border border-border/30 bg-background/50 p-3 transition-all duration-200 hover:border-primary/30 hover:bg-background/80"
+                          className="group cursor-pointer rounded-lg border border-glass-border bg-surface-1/50 p-3 transition-all duration-200 hover:border-primary/30 hover:bg-surface-2/50 hover:shadow-glow"
                           onClick={() =>
                             router.push(`/bills/${bill.parliamentId}`)
                           }
@@ -326,7 +323,7 @@ export function TimelineClient() {
                                 </Badge>
                               )}
                               {bill.isAct && (
-                                <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/30 text-[10px] px-1.5 py-0 h-4">
+                                <Badge className="bg-commons-bg text-commons-text border-commons-text/30 text-[10px] px-1.5 py-0 h-4">
                                   Act
                                 </Badge>
                               )}
@@ -348,11 +345,11 @@ export function TimelineClient() {
           </div>
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
-      </Card>
+      </div>
 
       {/* Vertical list view for smaller screens */}
       <div className="block lg:hidden space-y-6 mt-4">
-        <Separator />
+        <Separator className="opacity-50" />
         <h3 className="text-sm font-semibold text-muted-foreground">
           List View
         </h3>
@@ -363,8 +360,8 @@ export function TimelineClient() {
               <h4 className="text-sm font-semibold whitespace-nowrap">
                 {group.label}
               </h4>
-              <Separator className="flex-1" />
-              <Badge variant="secondary" className="text-xs shrink-0">
+              <Separator className="flex-1 opacity-50" />
+              <Badge variant="secondary" className="text-xs shrink-0 font-mono-numbers">
                 {group.bills.length}
               </Badge>
             </div>
@@ -374,9 +371,9 @@ export function TimelineClient() {
                 const progress = getStageProgress(bill.currentStage);
 
                 return (
-                  <Card
+                  <div
                     key={bill.parliamentId}
-                    className="p-3 border-border/50 cursor-pointer hover:border-primary/30 transition-colors"
+                    className="glass glass-hover rounded-xl p-3 cursor-pointer transition-all"
                     onClick={() => router.push(`/bills/${bill.parliamentId}`)}
                     role="button"
                     tabIndex={0}
@@ -428,12 +425,12 @@ export function TimelineClient() {
                             style={{ width: `${progress}%` }}
                           />
                         </div>
-                        <p className="text-[9px] text-muted-foreground text-right mt-0.5">
+                        <p className="text-[9px] text-muted-foreground text-right mt-0.5 font-mono-numbers">
                           {progress}%
                         </p>
                       </div>
                     </div>
-                  </Card>
+                  </div>
                 );
               })}
             </div>

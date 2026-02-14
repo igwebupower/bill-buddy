@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -12,10 +11,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { Bell, Moon, Sun, Globe, Trash2 } from "lucide-react";
 import { useDeviceId } from "@/hooks/useDeviceId";
 import { toast } from "sonner";
+import { GlassCard } from "@/components/shared/GlassCard";
 
 const languages = [
   { value: "en", label: "English" },
@@ -75,7 +74,6 @@ export function SettingsClient() {
     if (permission === "granted") {
       setNotificationsEnabled(true);
 
-      // Register push subscription
       if ("serviceWorker" in navigator && deviceId) {
         try {
           const registration = await navigator.serviceWorker.ready;
@@ -139,13 +137,15 @@ export function SettingsClient() {
   return (
     <div className="space-y-6">
       {/* Appearance */}
-      <Card className="p-5 space-y-4">
+      <GlassCard className="space-y-4">
         <h2 className="text-sm font-semibold flex items-center gap-2">
-          {darkMode ? (
-            <Moon className="h-4 w-4" />
-          ) : (
-            <Sun className="h-4 w-4" />
-          )}
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-gradient-from/15 to-gradient-via/15">
+            {darkMode ? (
+              <Moon className="h-3.5 w-3.5 text-primary" />
+            ) : (
+              <Sun className="h-3.5 w-3.5 text-primary" />
+            )}
+          </div>
           Appearance
         </h2>
 
@@ -159,12 +159,14 @@ export function SettingsClient() {
             onCheckedChange={toggleTheme}
           />
         </div>
-      </Card>
+      </GlassCard>
 
       {/* Language */}
-      <Card className="p-5 space-y-4">
+      <GlassCard className="space-y-4">
         <h2 className="text-sm font-semibold flex items-center gap-2">
-          <Globe className="h-4 w-4" />
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-gradient-from/15 to-gradient-via/15">
+            <Globe className="h-3.5 w-3.5 text-primary" />
+          </div>
           Language
         </h2>
 
@@ -190,12 +192,14 @@ export function SettingsClient() {
           AI summaries will be translated to your preferred language when
           available.
         </p>
-      </Card>
+      </GlassCard>
 
       {/* Notifications */}
-      <Card className="p-5 space-y-4">
+      <GlassCard className="space-y-4">
         <h2 className="text-sm font-semibold flex items-center gap-2">
-          <Bell className="h-4 w-4" />
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-gradient-from/15 to-gradient-via/15">
+            <Bell className="h-3.5 w-3.5 text-primary" />
+          </div>
           Notifications
         </h2>
 
@@ -225,12 +229,14 @@ export function SettingsClient() {
             your browser settings.
           </p>
         )}
-      </Card>
+      </GlassCard>
 
       {/* Data */}
-      <Card className="p-5 space-y-4">
+      <GlassCard className="space-y-4">
         <h2 className="text-sm font-semibold flex items-center gap-2">
-          <Trash2 className="h-4 w-4" />
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-gradient-from/15 to-gradient-via/15">
+            <Trash2 className="h-3.5 w-3.5 text-primary" />
+          </div>
           Data
         </h2>
 
@@ -240,11 +246,11 @@ export function SettingsClient() {
         </p>
 
         {deviceId && (
-          <p className="text-xs text-muted-foreground font-mono">
+          <p className="text-xs text-muted-foreground font-mono-numbers">
             Device ID: {deviceId.slice(0, 8)}...
           </p>
         )}
-      </Card>
+      </GlassCard>
     </div>
   );
 }

@@ -45,9 +45,9 @@ export function StageTimeline({ stages, currentStage }: StageTimelineProps) {
                 className={cn(
                   "flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
                   isPast &&
-                    "border-primary bg-primary text-primary-foreground",
+                    "border-gradient-from bg-gradient-to-br from-gradient-from to-gradient-via text-white shadow-[0_0_10px_var(--glow-color)]",
                   isCurrent &&
-                    "border-primary bg-primary/20 text-primary animate-pulse",
+                    "border-gradient-from bg-gradient-from/20 text-gradient-from animate-pulse shadow-[0_0_12px_var(--glow-color)]",
                   isFuture && "border-border bg-muted text-muted-foreground"
                 )}
               >
@@ -63,7 +63,9 @@ export function StageTimeline({ stages, currentStage }: StageTimelineProps) {
                 <div
                   className={cn(
                     "w-0.5 flex-1 min-h-6",
-                    isPast ? "bg-primary" : "bg-border"
+                    isPast
+                      ? "bg-gradient-to-b from-gradient-from to-gradient-via"
+                      : "bg-border"
                   )}
                 />
               )}
@@ -85,14 +87,14 @@ export function StageTimeline({ stages, currentStage }: StageTimelineProps) {
                   className={cn(
                     "text-xs",
                     stage.house === "Commons"
-                      ? "text-green-400"
-                      : "text-red-400"
+                      ? "text-commons-text"
+                      : "text-lords-text"
                   )}
                 >
                   {stage.house}
                 </span>
                 {stage.sittingDate && (
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-muted-foreground font-mono-numbers">
                     {new Date(stage.sittingDate).toLocaleDateString("en-GB", {
                       day: "numeric",
                       month: "short",

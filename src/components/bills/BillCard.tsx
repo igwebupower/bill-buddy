@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollText, ArrowRight, Calendar } from "lucide-react";
 import { getHouseColor, getStageProgress } from "@/lib/parliament/client";
@@ -31,27 +30,39 @@ interface BillCardProps {
 
 export function BillCard({ bill }: BillCardProps) {
   const progress = getStageProgress(bill.currentStage);
-  const billId = bill.id || String(bill.parliamentId);
 
   return (
     <Link href={`/bills/${bill.parliamentId}`}>
-      <Card className="group relative overflow-hidden border-border/50 bg-card/50 p-5 transition-all duration-200 hover:border-primary/30 hover:bg-card hover:shadow-lg hover:shadow-primary/5">
-        {/* Progress bar */}
-        <div className="absolute top-0 left-0 h-0.5 w-full bg-muted">
+      <div className="group glass gradient-border relative overflow-hidden rounded-xl p-5 transition-all duration-300 glass-hover hover:shadow-glow">
+        {/* Progress bar with gradient and glow tip */}
+        <div className="absolute top-0 left-0 h-0.5 w-full bg-surface-2">
           <div
-            className="h-full bg-primary transition-all duration-500"
+            className="relative h-full bg-gradient-to-r from-gradient-from via-gradient-via to-gradient-to transition-all duration-500"
             style={{ width: `${progress}%` }}
-          />
+          >
+            <div className="absolute right-0 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-gradient-to shadow-[0_0_8px_var(--gradient-to)]" />
+          </div>
         </div>
 
         <div className="space-y-3">
-          {/* Header: badges */}
+          {/* Header: badges with dot indicators */}
           <div className="flex flex-wrap items-center gap-2">
             {bill.currentHouse && (
               <Badge
                 variant="outline"
-                className={cn("text-xs", getHouseColor(bill.currentHouse))}
+                className={cn(
+                  "text-xs gap-1.5",
+                  getHouseColor(bill.currentHouse)
+                )}
               >
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full",
+                    bill.currentHouse === "Commons"
+                      ? "bg-commons-text"
+                      : "bg-lords-text"
+                  )}
+                />
                 {bill.currentHouse}
               </Badge>
             )}
@@ -61,7 +72,7 @@ export function BillCard({ bill }: BillCardProps) {
               </Badge>
             )}
             {bill.isAct && (
-              <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/30 text-xs">
+              <Badge className="bg-commons-bg text-commons-text border-commons-text/30 text-xs">
                 Act of Parliament
               </Badge>
             )}
@@ -79,7 +90,9 @@ export function BillCard({ bill }: BillCardProps) {
 
           {/* Summary or long title */}
           <p className="text-sm text-muted-foreground line-clamp-2">
-            {bill.summaries?.[0]?.tldr || bill.longTitle || "No summary available yet"}
+            {bill.summaries?.[0]?.tldr ||
+              bill.longTitle ||
+              "No summary available yet"}
           </p>
 
           {/* Footer */}
@@ -92,7 +105,7 @@ export function BillCard({ bill }: BillCardProps) {
                 </span>
               )}
               {bill.lastUpdate && (
-                <span className="flex items-center gap-1">
+                <span className="flex items-center gap-1 font-mono-numbers">
                   <Calendar className="h-3.5 w-3.5" />
                   {new Date(bill.lastUpdate).toLocaleDateString("en-GB", {
                     day: "numeric",
@@ -102,7 +115,7 @@ export function BillCard({ bill }: BillCardProps) {
                 </span>
               )}
             </div>
-            <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+            <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 transition-all group-hover:opacity-100 group-hover:translate-x-0.5" />
           </div>
 
           {/* Sponsors */}
@@ -112,7 +125,7 @@ export function BillCard({ bill }: BillCardProps) {
             </div>
           )}
         </div>
-      </Card>
+      </div>
     </Link>
   );
 }

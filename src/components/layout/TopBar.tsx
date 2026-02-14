@@ -2,44 +2,131 @@
 
 import { Menu, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
+import { useState, useEffect, useCallback } from "react";
+import {
+  CommandDialog,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "@/components/ui/command";
+import {
+  ScrollText,
+  Heart,
+  GraduationCap,
+  Home,
+  Scale,
+  Cpu,
+} from "lucide-react";
 
 interface TopBarProps {
   onMenuClick: () => void;
 }
 
+const quickNav = [
+  { label: "Health Bills", search: "Health", icon: Heart },
+  { label: "Education Bills", search: "Education", icon: GraduationCap },
+  { label: "Housing Bills", search: "Housing", icon: Home },
+  { label: "Justice Bills", search: "Justice", icon: Scale },
+  { label: "Technology Bills", search: "Technology", icon: Cpu },
+];
+
 export function TopBar({ onMenuClick }: TopBarProps) {
   const router = useRouter();
+  const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
 
-  function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    if (query.trim()) {
-      router.push(`/bills?search=${encodeURIComponent(query.trim())}`);
-      setQuery("");
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      e.preventDefault();
+      setOpen((prev) => !prev);
     }
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
+
+  function handleSelect(search: string) {
+    setOpen(false);
+    setQuery("");
+    router.push(`/bills?search=${encodeURIComponent(search)}`);
   }
 
   return (
-    <header data-slot="topbar" className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-background/80 px-4 backdrop-blur-md lg:px-6">
-      <button
-        onClick={onMenuClick}
-        className="rounded-md p-2 hover:bg-accent lg:hidden"
+    <>
+      <header
+        data-slot="topbar"
+        className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-glass-border bg-surface-0/80 px-4 backdrop-blur-xl lg:px-6"
       >
-        <Menu className="h-5 w-5" />
-      </button>
+        <button
+          onClick={onMenuClick}
+          className="rounded-md p-2 hover:bg-accent lg:hidden"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
 
-      <form onSubmit={handleSearch} className="relative flex-1 max-w-md">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          type="search"
+        {/* Spotlight search trigger */}
+        <button
+          onClick={() => setOpen(true)}
+          className="glass glass-hover relative flex flex-1 max-w-md items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-all"
+        >
+          <Search className="h-4 w-4" />
+          <span>Search bills...</span>
+          <kbd className="ml-auto hidden rounded border border-glass-border bg-surface-2 px-1.5 py-0.5 text-[10px] font-mono-numbers text-muted-foreground sm:inline-block">
+            Ctrl K
+          </kbd>
+        </button>
+      </header>
+
+      {/* Command palette */}
+      <CommandDialog
+        open={open}
+        onOpenChange={setOpen}
+        title="Search Bills"
+        description="Search for UK Parliamentary bills by name or topic"
+      >
+        <CommandInput
           placeholder="Search bills..."
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="pl-9 bg-muted/50"
+          onValueChange={setQuery}
         />
-      </form>
-    </header>
+        <CommandList>
+          <CommandEmpty>
+            {query.trim() ? (
+              <button
+                className="text-primary hover:underline"
+                onClick={() => handleSelect(query)}
+              >
+                Search for &ldquo;{query}&rdquo;
+              </button>
+            ) : (
+              "Type to search..."
+            )}
+          </CommandEmpty>
+          <CommandGroup heading="Quick topics">
+            {quickNav.map((item) => (
+              <CommandItem
+                key={item.search}
+                onSelect={() => handleSelect(item.search)}
+              >
+                <item.icon className="h-4 w-4" />
+                <span>{item.label}</span>
+              </CommandItem>
+            ))}
+          </CommandGroup>
+          {query.trim() && (
+            <CommandGroup heading="Search">
+              <CommandItem onSelect={() => handleSelect(query)}>
+                <ScrollText className="h-4 w-4" />
+                <span>Search for &ldquo;{query}&rdquo;</span>
+              </CommandItem>
+            </CommandGroup>
+          )}
+        </CommandList>
+      </CommandDialog>
+    </>
   );
 }
