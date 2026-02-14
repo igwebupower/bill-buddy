@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
         isAct: bill.isAct,
         isDefeated: bill.isDefeated,
         lastUpdate: bill.lastUpdate,
-        sponsors: bill.sponsors.map((s) => ({
+        sponsors: (bill.sponsors ?? []).map((s) => ({
           name: s.member?.name || s.organisation?.name || "Unknown",
           party: s.member?.party || null,
           photoUrl: s.member?.memberPhoto || null,
