@@ -11,6 +11,7 @@ import { DivisionsList } from "@/components/bills/DivisionsList";
 import { StageTimeline } from "@/components/bills/StageTimeline";
 import { TrackButton } from "@/components/bills/TrackButton";
 import { ShareDialog } from "@/components/bills/ShareDialog";
+import { WriteToMPDialog } from "@/components/bills/WriteToMPDialog";
 import { GlassCard } from "@/components/shared/GlassCard";
 import { getHouseColor } from "@/lib/parliament/client";
 import { cn } from "@/lib/utils";
@@ -18,6 +19,7 @@ import {
   ArrowLeft,
   ExternalLink,
   ScrollText,
+  Send,
   User,
   FileText,
   Vote,
@@ -77,6 +79,7 @@ export function BillDetailClient({ id }: BillDetailClientProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [language, setLanguage] = useState("en");
+  const [showWriteToMP, setShowWriteToMP] = useState(false);
 
   useEffect(() => {
     const savedLang = localStorage.getItem("bill-buddy-language") || "en";
@@ -208,6 +211,24 @@ export function BillDetailClient({ id }: BillDetailClientProps) {
             billId={id}
             billTitle={bill.shortTitle}
             tldr={bill.summaries?.[0]?.tldr || bill.longTitle}
+          />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowWriteToMP(true)}
+          >
+            <Send className="h-4 w-4 mr-1.5" />
+            Write to Your MP
+          </Button>
+          <WriteToMPDialog
+            open={showWriteToMP}
+            onOpenChange={setShowWriteToMP}
+            billTitle={bill.shortTitle}
+            billSummary={
+              bill.summaries?.[0]?.overview ||
+              bill.summaries?.[0]?.tldr ||
+              bill.longTitle
+            }
           />
         </div>
       </div>

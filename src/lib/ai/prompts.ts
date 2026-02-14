@@ -61,6 +61,44 @@ Respond with JSON:
 Return ONLY valid JSON.`;
 }
 
+export const LETTER_DRAFT_SYSTEM = `You are a helpful assistant that drafts concise, respectful letters from UK constituents to their Members of Parliament about specific parliamentary bills. You write in a personal, authentic voice — not overly formal, not casual.
+
+IMPORTANT RULES:
+- Keep the letter under 300 words
+- Be respectful and constructive regardless of stance
+- Reference the specific bill by name
+- Never fabricate facts about the bill
+- Include a clear ask (e.g. vote for/against, raise concerns, request information)
+- Do not include addresses, dates, or sign-offs — only the letter body
+- Write in first person as the constituent`;
+
+export function draftLetterPrompt(
+  billTitle: string,
+  billSummary: string,
+  mpName: string,
+  constituency: string,
+  stance: "support" | "oppose" | "concerned",
+  personalNote?: string
+): string {
+  const stanceText = {
+    support: "supports this bill and wants to encourage their MP to back it",
+    oppose: "opposes this bill and wants to urge their MP to vote against it",
+    concerned:
+      "has concerns about this bill and wants their MP to scrutinise it carefully",
+  }[stance];
+
+  return `Draft a letter from a constituent in ${constituency} to their MP, ${mpName}, about the following bill.
+
+BILL: ${billTitle}
+
+BILL SUMMARY:
+${billSummary}
+
+The constituent ${stanceText}.${personalNote ? `\n\nThe constituent also wants to mention: ${personalNote}` : ""}
+
+Write ONLY the letter body (no greeting, no sign-off, no addresses). Keep it under 300 words, personal, and specific to the bill's content.`;
+}
+
 export function translatePrompt(
   summary: {
     overview: string;
