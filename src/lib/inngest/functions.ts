@@ -43,9 +43,9 @@ export const syncBills = inngest.createFunction(
               create: {
                 parliamentId: bill.billId,
                 shortTitle: bill.shortTitle,
-                longTitle: bill.longTitle,
+                longTitle: bill.longTitle || bill.shortTitle,
                 billTypeId: bill.billTypeId,
-                billTypeCategory: bill.billTypeCategory,
+                billTypeCategory: bill.billTypeCategory || null,
                 currentHouse: bill.currentHouse,
                 currentStage: bill.currentStage?.description || null,
                 originatingHouse: bill.originatingHouse,
@@ -62,7 +62,7 @@ export const syncBills = inngest.createFunction(
               },
               update: {
                 shortTitle: bill.shortTitle,
-                longTitle: bill.longTitle,
+                longTitle: bill.longTitle || bill.shortTitle,
                 currentHouse: bill.currentHouse,
                 currentStage: bill.currentStage?.description || null,
                 lastUpdate: bill.lastUpdate
@@ -122,7 +122,7 @@ export const syncBills = inngest.createFunction(
             }
 
             // Sync sponsors
-            for (const sponsor of bill.sponsors) {
+            for (const sponsor of bill.sponsors || []) {
               if (sponsor.member) {
                 const dbBill = await prisma.bill.findUnique({
                   where: { parliamentId: bill.billId },
