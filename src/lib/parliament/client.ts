@@ -62,7 +62,7 @@ export async function getBills(
     Skip: (page - 1) * take,
     Take: take,
     SortField: sortField === "title" ? "Title" : "DateUpdated",
-    SortOrder: sortOrder === "asc" ? "Ascending" : "Descending",
+    SortOrder: sortOrder === "asc" ? 1 : 0,
   });
 }
 
