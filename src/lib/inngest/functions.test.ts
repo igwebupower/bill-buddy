@@ -94,6 +94,54 @@ describe("syncBills function", () => {
     });
   });
 
+  it("paginates through all available pages", async () => {
+    const { prisma: db } = await import("@/lib/db");
+    const { getBills: getBillsFn } = await import("@/lib/parliament/client");
+
+    vi.mocked(db.syncLog.create).mockResolvedValue({ id: "log-1" } as never);
+    vi.mocked(db.syncLog.update).mockResolvedValue({} as never);
+    vi.mocked(db.bill.upsert).mockResolvedValue({} as never);
+    vi.mocked(db.bill.findUnique).mockResolvedValue({ id: "bill-1" } as never);
+    vi.mocked(db.billStage.upsert).mockResolvedValue({} as never);
+    vi.mocked(db.billSponsor.upsert).mockResolvedValue({} as never);
+
+    const makeBill = (id: number) => ({
+      billId: id,
+      shortTitle: `Bill ${id}`,
+      longTitle: `Long title ${id}`,
+      billTypeId: 1,
+      billTypeCategory: "Government",
+      currentHouse: "Commons",
+      currentStage: null,
+      originatingHouse: "Commons",
+      lastUpdate: "2025-01-01",
+      isAct: false,
+      isDefeated: false,
+      billWithdrawn: null,
+      sessions: [],
+      sponsors: [],
+    });
+
+    // Simulate 25 pages (1,250 bills at 50 per page) — more than the old 20-page cap
+    const totalResults = 1250;
+    vi.mocked(getBillsFn).mockImplementation(async (params) => {
+      const page = params?.page ?? 1;
+      const take = params?.take ?? 50;
+      const startId = (page - 1) * take + 1;
+      const remaining = totalResults - (page - 1) * take;
+      const count = Math.min(take, remaining);
+      const items = Array.from({ length: count }, (_, i) => makeBill(startId + i));
+      return { items, totalResults, itemsPerPage: take, currentPage: page };
+    });
+
+    const step = createStepMock();
+    const result = await syncBillsHandler({ step }) as { synced: number; found: number };
+
+    expect(result.synced).toBe(1250);
+    expect(result.found).toBe(1250);
+    expect(getBillsFn).toHaveBeenCalledTimes(25);
+  });
+
   it("completes sync log on success", async () => {
     const { prisma: db } = await import("@/lib/db");
     const { getBills: getBillsFn } = await import("@/lib/parliament/client");

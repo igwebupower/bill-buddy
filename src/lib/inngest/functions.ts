@@ -159,9 +159,6 @@ export const syncBills = inngest.createFunction(
 
         hasMore = result.hasMore;
         page++;
-
-        // Safety limit
-        if (page > 20) break;
       }
 
       await step.run("complete-sync-log", async () => {
