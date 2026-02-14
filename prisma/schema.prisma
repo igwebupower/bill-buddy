@@ -1,0 +1,205 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Bills ────────────────────────────────────────────────────────────────────
+
+model Bill {
+  id                 String   @id @default(cuid())
+  parliamentId       Int      @unique
+  shortTitle         String
+  longTitle          String
+  billTypeId         Int?
+  billTypeName       String?
+  billTypeCategory   String?  // "Government" | "Private Members'" | "Private"
+  currentHouse       String?  // "Commons" | "Lords" | "Unassigned"
+  currentStage       String?
+  originatingHouse   String?
+  lastUpdate         DateTime?
+  isAct              Boolean  @default(false)
+  isDefeated         Boolean  @default(false)
+  billWithdrawn      DateTime?
+  sessionId          Int?
+  sessionName        String?
+  policyTopics       String[] @default([])
+  affectedGroups     String[] @default([])
+  legislationGovUrl  String?
+
+  stages             BillStage[]
+  sponsors           BillSponsor[]
+  publications       BillPublication[]
+  summaries          BillSummary[]
+  trackedBills       TrackedBill[]
+  notifications      Notification[]
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([currentHouse])
+  @@index([billTypeName])
+  @@index([isAct])
+  @@index([lastUpdate])
+}
+
+model BillStage {
+  id            String    @id @default(cuid())
+  billId        String
+  bill          Bill      @relation(fields: [billId], references: [id], onDelete: Cascade)
+  stageId       Int
+  stageName     String
+  house         String    // "Commons" | "Lords"
+  sortOrder     Int       @default(0)
+  sittingDate   DateTime?
+  description   String?
+
+  createdAt     DateTime  @default(now())
+
+  @@unique([billId, stageId])
+  @@index([billId])
+}
+
+model BillSponsor {
+  id            String  @id @default(cuid())
+  billId        String
+  bill          Bill    @relation(fields: [billId], references: [id], onDelete: Cascade)
+  memberId      Int?
+  name          String
+  party         String?
+  constituency  String?
+  photoUrl      String?
+  sortOrder     Int     @default(0)
+
+  @@index([billId])
+}
+
+model BillPublication {
+  id              String  @id @default(cuid())
+  billId          String
+  bill            Bill    @relation(fields: [billId], references: [id], onDelete: Cascade)
+  publicationType String  // "Bill text" | "Amendment paper" | "Explanatory notes" etc.
+  title           String
+  url             String
+  displayDate     DateTime?
+
+  createdAt       DateTime @default(now())
+
+  @@index([billId])
+}
+
+// ─── AI Summaries ──────────────────────────────────────────────────────────────
+
+model BillSummary {
+  id          String   @id @default(cuid())
+  billId      String
+  bill        Bill     @relation(fields: [billId], references: [id], onDelete: Cascade)
+  language    String   @default("en")
+  version     Int      @default(1)
+
+  // Structured summary JSON
+  overview    String   // Plain-English overview
+  purpose     String   // Why this bill exists
+  keyChanges  Json     // string[] - Major changes proposed
+  impacts     Json     // { group: string, impact: string }[]
+  implementation String? // Timeline / how it would be implemented
+  tldr        String   // One-sentence summary
+
+  modelUsed   String   @default("claude-sonnet-4-5-20250929")
+  tokensUsed  Int?
+  generatedAt DateTime @default(now())
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([billId, language, version])
+  @@index([billId])
+}
+
+// ─── Device & Tracking ─────────────────────────────────────────────────────────
+
+model DeviceProfile {
+  id              String   @id @default(cuid())
+  deviceId        String   @unique // localStorage UUID
+  preferredLang   String   @default("en")
+  theme           String   @default("dark")
+
+  trackedBills    TrackedBill[]
+  pushSubscriptions PushSubscription[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model TrackedBill {
+  id              String   @id @default(cuid())
+  deviceId        String
+  device          DeviceProfile @relation(fields: [deviceId], references: [deviceId], onDelete: Cascade)
+  billId          String
+  bill            Bill     @relation(fields: [billId], references: [id], onDelete: Cascade)
+
+  notifyStageChange  Boolean @default(true)
+  notifyRoyalAssent  Boolean @default(true)
+  notifyNewAmendment Boolean @default(false)
+
+  createdAt       DateTime @default(now())
+
+  @@unique([deviceId, billId])
+  @@index([deviceId])
+  @@index([billId])
+}
+
+model PushSubscription {
+  id         String   @id @default(cuid())
+  deviceId   String
+  device     DeviceProfile @relation(fields: [deviceId], references: [deviceId], onDelete: Cascade)
+  endpoint   String   @unique
+  p256dh     String
+  auth       String
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([deviceId])
+}
+
+// ─── Notifications ──────────────────────────────────────────────────────────────
+
+enum NotificationType {
+  STAGE_CHANGE
+  ROYAL_ASSENT
+  NEW_BILL
+  NEW_AMENDMENT
+  BILL_DEFEATED
+  BILL_WITHDRAWN
+}
+
+model Notification {
+  id         String           @id @default(cuid())
+  billId     String
+  bill       Bill             @relation(fields: [billId], references: [id], onDelete: Cascade)
+  type       NotificationType
+  title      String
+  body       String
+  data       Json?
+  sentAt     DateTime         @default(now())
+
+  @@index([billId])
+  @@index([sentAt])
+}
+
+// ─── Sync Log ────────────────────────────────────────────────────────────────────
+
+model SyncLog {
+  id          String   @id @default(cuid())
+  jobName     String
+  status      String   // "started" | "completed" | "failed"
+  billsFound  Int?
+  billsSynced Int?
+  error       String?
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+}
