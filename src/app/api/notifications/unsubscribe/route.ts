@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { getUserFromRequest } from "@/lib/auth/session";
 
 export async function POST(request: NextRequest) {
+  const user = await getUserFromRequest(request);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const body = await request.json();
   const { endpoint } = body;
 
@@ -13,7 +19,7 @@ export async function POST(request: NextRequest) {
   }
 
   await prisma.pushSubscription.deleteMany({
-    where: { endpoint },
+    where: { endpoint, userId: user.id },
   });
 
   return NextResponse.json({ ok: true });

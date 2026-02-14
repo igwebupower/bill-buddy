@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { AppShell } from "@/components/layout/AppShell";
 import { InstallPrompt } from "@/components/shared/InstallPrompt";
 import { OfflineIndicator } from "@/components/shared/OfflineIndicator";
+import { AuthProvider } from "@/contexts/AuthContext";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -53,10 +54,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <TooltipProvider>
-          <OfflineIndicator />
-          <AppShell>{children}</AppShell>
-          <InstallPrompt />
-          <Toaster />
+          <AuthProvider>
+            <OfflineIndicator />
+            <AppShell>{children}</AppShell>
+            <InstallPrompt />
+            <Toaster />
+          </AuthProvider>
         </TooltipProvider>
       </body>
     </html>

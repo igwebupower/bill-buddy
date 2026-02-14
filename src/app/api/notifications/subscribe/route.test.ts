@@ -3,6 +3,14 @@ import { POST } from "./route";
 import { prisma } from "@/lib/db";
 import { NextRequest } from "next/server";
 
+vi.mock("@/lib/auth/session", () => ({
+  getUserFromRequest: vi.fn(),
+}));
+
+import { getUserFromRequest } from "@/lib/auth/session";
+
+const mockUser = { id: "user-1", email: "test@example.com" };
+
 function makeRequest(
   headers: Record<string, string> = {},
   body: unknown = {}
@@ -17,16 +25,23 @@ function makeRequest(
 describe("POST /api/notifications/subscribe", () => {
   beforeEach(() => vi.resetAllMocks());
 
-  it("returns 400 when X-Device-ID header is missing", async () => {
+  it("returns 401 when not authenticated", async () => {
+    vi.mocked(getUserFromRequest).mockResolvedValue(null);
+
     const response = await POST(makeRequest());
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(401);
     const data = await response.json();
-    expect(data.error).toBe("Missing device ID");
+    expect(data.error).toBe("Unauthorized");
   });
 
   it("returns 400 when endpoint is missing", async () => {
+    vi.mocked(getUserFromRequest).mockResolvedValue(mockUser as never);
+
     const response = await POST(
-      makeRequest({ "X-Device-ID": "device-123" }, { keys: { p256dh: "key1", auth: "key2" } })
+      makeRequest(
+        { Authorization: "Bearer test-token" },
+        { keys: { p256dh: "key1", auth: "key2" } }
+      )
     );
     expect(response.status).toBe(400);
     const data = await response.json();
@@ -34,9 +49,11 @@ describe("POST /api/notifications/subscribe", () => {
   });
 
   it("returns 400 when keys.p256dh is missing", async () => {
+    vi.mocked(getUserFromRequest).mockResolvedValue(mockUser as never);
+
     const response = await POST(
       makeRequest(
-        { "X-Device-ID": "device-123" },
+        { Authorization: "Bearer test-token" },
         { endpoint: "https://push.example.com", keys: { auth: "key2" } }
       )
     );
@@ -44,9 +61,11 @@ describe("POST /api/notifications/subscribe", () => {
   });
 
   it("returns 400 when keys.auth is missing", async () => {
+    vi.mocked(getUserFromRequest).mockResolvedValue(mockUser as never);
+
     const response = await POST(
       makeRequest(
-        { "X-Device-ID": "device-123" },
+        { Authorization: "Bearer test-token" },
         { endpoint: "https://push.example.com", keys: { p256dh: "key1" } }
       )
     );
@@ -54,9 +73,11 @@ describe("POST /api/notifications/subscribe", () => {
   });
 
   it("returns 400 when keys is missing entirely", async () => {
+    vi.mocked(getUserFromRequest).mockResolvedValue(mockUser as never);
+
     const response = await POST(
       makeRequest(
-        { "X-Device-ID": "device-123" },
+        { Authorization: "Bearer test-token" },
         { endpoint: "https://push.example.com" }
       )
     );
@@ -64,12 +85,12 @@ describe("POST /api/notifications/subscribe", () => {
   });
 
   it("creates subscription successfully with valid data", async () => {
-    vi.mocked(prisma.deviceProfile.upsert).mockResolvedValue({} as never);
+    vi.mocked(getUserFromRequest).mockResolvedValue(mockUser as never);
     vi.mocked(prisma.pushSubscription.upsert).mockResolvedValue({} as never);
 
     const response = await POST(
       makeRequest(
-        { "X-Device-ID": "device-123" },
+        { Authorization: "Bearer test-token" },
         {
           endpoint: "https://push.example.com/subscription/abc",
           keys: { p256dh: "p256dh-key", auth: "auth-key" },
@@ -81,16 +102,10 @@ describe("POST /api/notifications/subscribe", () => {
     const data = await response.json();
     expect(data.ok).toBe(true);
 
-    expect(prisma.deviceProfile.upsert).toHaveBeenCalledWith({
-      where: { deviceId: "device-123" },
-      create: { deviceId: "device-123" },
-      update: {},
-    });
-
     expect(prisma.pushSubscription.upsert).toHaveBeenCalledWith({
       where: { endpoint: "https://push.example.com/subscription/abc" },
       create: {
-        deviceId: "device-123",
+        userId: "user-1",
         endpoint: "https://push.example.com/subscription/abc",
         p256dh: "p256dh-key",
         auth: "auth-key",

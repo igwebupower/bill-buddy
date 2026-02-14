@@ -20,8 +20,27 @@ vi.mock("@/lib/db", () => ({
       upsert: vi.fn(),
       deleteMany: vi.fn(),
     },
-    deviceProfile: { upsert: vi.fn() },
-    pushSubscription: { upsert: vi.fn() },
+    user: {
+      findUnique: vi.fn(),
+      upsert: vi.fn(),
+      update: vi.fn(),
+    },
+    session: {
+      create: vi.fn(),
+      findUnique: vi.fn(),
+      delete: vi.fn(),
+      deleteMany: vi.fn(),
+    },
+    verificationCode: {
+      create: vi.fn(),
+      findFirst: vi.fn(),
+      update: vi.fn(),
+      updateMany: vi.fn(),
+    },
+    pushSubscription: {
+      upsert: vi.fn(),
+      deleteMany: vi.fn(),
+    },
     notification: { create: vi.fn() },
     syncLog: {
       create: vi.fn(),

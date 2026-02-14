@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { BookmarkPlus, BookmarkCheck, Loader2 } from "lucide-react";
-import { useDeviceId } from "@/hooks/useDeviceId";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { AuthDialog } from "@/components/auth/AuthDialog";
 import { toast } from "sonner";
 
 interface TrackButtonProps {
@@ -13,17 +14,18 @@ interface TrackButtonProps {
 }
 
 export function TrackButton({ billId, parliamentId, billTitle }: TrackButtonProps) {
-  const deviceId = useDeviceId();
+  const { user, token } = useAuthContext();
   const [tracked, setTracked] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
 
   useEffect(() => {
-    if (!deviceId) return;
+    if (!user || !token) return;
 
     async function checkTracked() {
       try {
         const res = await fetch("/api/tracked", {
-          headers: { "X-Device-ID": deviceId! },
+          headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
         const isTracked = data.items?.some(
@@ -37,17 +39,20 @@ export function TrackButton({ billId, parliamentId, billTitle }: TrackButtonProp
     }
 
     checkTracked();
-  }, [deviceId, billId, parliamentId]);
+  }, [user, token, billId, parliamentId]);
 
   async function toggle() {
-    if (!deviceId) return;
+    if (!user || !token) {
+      setShowAuth(true);
+      return;
+    }
     setLoading(true);
 
     try {
       if (tracked) {
         await fetch(`/api/tracked?billId=${billId}`, {
           method: "DELETE",
-          headers: { "X-Device-ID": deviceId },
+          headers: { Authorization: `Bearer ${token}` },
         });
         setTracked(false);
         toast("Bill untracked");
@@ -56,7 +61,7 @@ export function TrackButton({ billId, parliamentId, billTitle }: TrackButtonProp
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-Device-ID": deviceId,
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
             parliamentId: parliamentId || billId,
@@ -75,20 +80,27 @@ export function TrackButton({ billId, parliamentId, billTitle }: TrackButtonProp
   }
 
   return (
-    <Button
-      variant={tracked ? "default" : "outline"}
-      size="sm"
-      onClick={toggle}
-      disabled={loading || !deviceId}
-    >
-      {loading ? (
-        <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-      ) : tracked ? (
-        <BookmarkCheck className="h-4 w-4 mr-1.5" />
-      ) : (
-        <BookmarkPlus className="h-4 w-4 mr-1.5" />
-      )}
-      {tracked ? "Tracking" : "Track"}
-    </Button>
+    <>
+      <Button
+        variant={tracked ? "default" : "outline"}
+        size="sm"
+        onClick={toggle}
+        disabled={loading}
+      >
+        {loading ? (
+          <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+        ) : tracked ? (
+          <BookmarkCheck className="h-4 w-4 mr-1.5" />
+        ) : (
+          <BookmarkPlus className="h-4 w-4 mr-1.5" />
+        )}
+        {tracked ? "Tracking" : "Track"}
+      </Button>
+      <AuthDialog
+        open={showAuth}
+        onOpenChange={setShowAuth}
+        onAuthenticated={() => toggle()}
+      />
+    </>
   );
 }

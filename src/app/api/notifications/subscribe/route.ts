@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { getUserFromRequest } from "@/lib/auth/session";
 
 export async function POST(request: NextRequest) {
-  const deviceId = request.headers.get("X-Device-ID");
-  if (!deviceId) {
-    return NextResponse.json({ error: "Missing device ID" }, { status: 400 });
+  const user = await getUserFromRequest(request);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const body = await request.json();
@@ -17,17 +18,10 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Ensure device exists
-  await prisma.deviceProfile.upsert({
-    where: { deviceId },
-    create: { deviceId },
-    update: {},
-  });
-
   await prisma.pushSubscription.upsert({
     where: { endpoint },
     create: {
-      deviceId,
+      userId: user.id,
       endpoint,
       p256dh: keys.p256dh,
       auth: keys.auth,

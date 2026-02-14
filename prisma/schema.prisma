@@ -118,25 +118,56 @@ model BillSummary {
   @@index([billId])
 }
 
-// ─── Device & Tracking ─────────────────────────────────────────────────────────
+// ─── Users & Auth ─────────────────────────────────────────────────────────────
 
-model DeviceProfile {
-  id              String   @id @default(cuid())
-  deviceId        String   @unique // localStorage UUID
-  preferredLang   String   @default("en")
-  theme           String   @default("dark")
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  preferredLang String   @default("en")
+  theme         String   @default("dark")
 
-  trackedBills    TrackedBill[]
+  sessions          Session[]
+  trackedBills      TrackedBill[]
   pushSubscriptions PushSubscription[]
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+}
+
+model VerificationCode {
+  id        String    @id @default(cuid())
+  email     String
+  code      String
+  expiresAt DateTime
+  attempts  Int       @default(0)
+  usedAt    DateTime?
+
+  createdAt DateTime  @default(now())
+
+  @@index([email])
+  @@index([code, email])
+}
+
+// ─── Tracking ─────────────────────────────────────────────────────────────────
 
 model TrackedBill {
   id              String   @id @default(cuid())
-  deviceId        String
-  device          DeviceProfile @relation(fields: [deviceId], references: [deviceId], onDelete: Cascade)
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   billId          String
   bill            Bill     @relation(fields: [billId], references: [id], onDelete: Cascade)
 
@@ -146,15 +177,15 @@ model TrackedBill {
 
   createdAt       DateTime @default(now())
 
-  @@unique([deviceId, billId])
-  @@index([deviceId])
+  @@unique([userId, billId])
+  @@index([userId])
   @@index([billId])
 }
 
 model PushSubscription {
   id         String   @id @default(cuid())
-  deviceId   String
-  device     DeviceProfile @relation(fields: [deviceId], references: [deviceId], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   endpoint   String   @unique
   p256dh     String
   auth       String
@@ -162,7 +193,7 @@ model PushSubscription {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  @@index([deviceId])
+  @@index([userId])
 }
 
 // ─── Notifications ──────────────────────────────────────────────────────────────

@@ -7,6 +7,14 @@ vi.mock("@/lib/parliament/client", () => ({
   getBillById: vi.fn(),
 }));
 
+vi.mock("@/lib/auth/session", () => ({
+  getUserFromRequest: vi.fn(),
+}));
+
+import { getUserFromRequest } from "@/lib/auth/session";
+
+const mockUser = { id: "user-1", email: "test@example.com" };
+
 function makeRequest(
   method: string,
   options: {
@@ -32,18 +40,22 @@ function makeRequest(
 describe("GET /api/tracked", () => {
   beforeEach(() => vi.resetAllMocks());
 
-  it("returns 400 when X-Device-ID header is missing", async () => {
+  it("returns 401 when not authenticated", async () => {
+    vi.mocked(getUserFromRequest).mockResolvedValue(null);
+
     const response = await GET(makeRequest("GET"));
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(401);
     const data = await response.json();
-    expect(data.error).toBe("Missing device ID");
+    expect(data.error).toBe("Unauthorized");
   });
 
-  it("returns tracked bills for a valid device", async () => {
+  it("returns tracked bills for authenticated user", async () => {
+    vi.mocked(getUserFromRequest).mockResolvedValue(mockUser as never);
+
     const mockTracked = [
       {
         id: "1",
-        deviceId: "device-123",
+        userId: "user-1",
         billId: "bill-1",
         bill: { shortTitle: "Test Bill", stages: [], summaries: [] },
       },
@@ -54,7 +66,9 @@ describe("GET /api/tracked", () => {
     );
 
     const response = await GET(
-      makeRequest("GET", { headers: { "X-Device-ID": "device-123" } })
+      makeRequest("GET", {
+        headers: { Authorization: "Bearer test-token" },
+      })
     );
     const data = await response.json();
 
@@ -67,17 +81,21 @@ describe("GET /api/tracked", () => {
 describe("POST /api/tracked", () => {
   beforeEach(() => vi.resetAllMocks());
 
-  it("returns 400 when X-Device-ID header is missing", async () => {
+  it("returns 401 when not authenticated", async () => {
+    vi.mocked(getUserFromRequest).mockResolvedValue(null);
+
     const response = await POST(
       makeRequest("POST", { body: { billId: "1" } })
     );
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(401);
   });
 
   it("returns 400 when neither billId nor parliamentId is provided", async () => {
+    vi.mocked(getUserFromRequest).mockResolvedValue(mockUser as never);
+
     const response = await POST(
       makeRequest("POST", {
-        headers: { "X-Device-ID": "device-123" },
+        headers: { Authorization: "Bearer test-token" },
         body: {},
       })
     );
@@ -87,13 +105,14 @@ describe("POST /api/tracked", () => {
   });
 
   it("tracks a bill that already exists in DB", async () => {
+    vi.mocked(getUserFromRequest).mockResolvedValue(mockUser as never);
+
     const mockBill = {
       id: "bill-1",
       shortTitle: "Existing Bill",
       parliamentId: 100,
     };
 
-    vi.mocked(prisma.deviceProfile.upsert).mockResolvedValue({} as never);
     vi.mocked(prisma.bill.findUnique).mockResolvedValue(mockBill as never);
     vi.mocked(prisma.trackedBill.upsert).mockResolvedValue({
       id: "tracked-1",
@@ -103,7 +122,7 @@ describe("POST /api/tracked", () => {
 
     const response = await POST(
       makeRequest("POST", {
-        headers: { "X-Device-ID": "device-123" },
+        headers: { Authorization: "Bearer test-token" },
         body: { billId: "bill-1" },
       })
     );
@@ -113,14 +132,12 @@ describe("POST /api/tracked", () => {
   });
 
   it("returns 404 for invalid (NaN) parliament ID when bill not found", async () => {
-    vi.mocked(prisma.deviceProfile.upsert).mockResolvedValue({} as never);
+    vi.mocked(getUserFromRequest).mockResolvedValue(mockUser as never);
     vi.mocked(prisma.bill.findUnique).mockResolvedValue(null as never);
-
-    const { getBillById } = await import("@/lib/parliament/client");
 
     const response = await POST(
       makeRequest("POST", {
-        headers: { "X-Device-ID": "device-123" },
+        headers: { Authorization: "Bearer test-token" },
         body: { parliamentId: "not-a-number" },
       })
     );
@@ -132,15 +149,19 @@ describe("POST /api/tracked", () => {
 describe("DELETE /api/tracked", () => {
   beforeEach(() => vi.resetAllMocks());
 
-  it("returns 400 when X-Device-ID header is missing", async () => {
+  it("returns 401 when not authenticated", async () => {
+    vi.mocked(getUserFromRequest).mockResolvedValue(null);
+
     const response = await DELETE(makeRequest("DELETE"));
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(401);
   });
 
   it("returns 400 when billId is missing", async () => {
+    vi.mocked(getUserFromRequest).mockResolvedValue(mockUser as never);
+
     const response = await DELETE(
       makeRequest("DELETE", {
-        headers: { "X-Device-ID": "device-123" },
+        headers: { Authorization: "Bearer test-token" },
       })
     );
     expect(response.status).toBe(400);
@@ -149,6 +170,8 @@ describe("DELETE /api/tracked", () => {
   });
 
   it("deletes tracking and returns ok when bill exists", async () => {
+    vi.mocked(getUserFromRequest).mockResolvedValue(mockUser as never);
+
     vi.mocked(prisma.bill.findFirst).mockResolvedValue({
       id: "bill-1",
     } as never);
@@ -158,7 +181,7 @@ describe("DELETE /api/tracked", () => {
 
     const response = await DELETE(
       makeRequest("DELETE", {
-        headers: { "X-Device-ID": "device-123" },
+        headers: { Authorization: "Bearer test-token" },
         searchParams: { billId: "bill-1" },
       })
     );
@@ -166,16 +189,18 @@ describe("DELETE /api/tracked", () => {
     const data = await response.json();
     expect(data.ok).toBe(true);
     expect(prisma.trackedBill.deleteMany).toHaveBeenCalledWith({
-      where: { deviceId: "device-123", billId: "bill-1" },
+      where: { userId: "user-1", billId: "bill-1" },
     });
   });
 
   it("returns ok even when bill is not found", async () => {
+    vi.mocked(getUserFromRequest).mockResolvedValue(mockUser as never);
+
     vi.mocked(prisma.bill.findFirst).mockResolvedValue(null as never);
 
     const response = await DELETE(
       makeRequest("DELETE", {
-        headers: { "X-Device-ID": "device-123" },
+        headers: { Authorization: "Bearer test-token" },
         searchParams: { billId: "nonexistent" },
       })
     );

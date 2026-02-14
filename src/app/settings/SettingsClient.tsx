@@ -11,8 +11,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Bell, Moon, Sun, Globe, Trash2 } from "lucide-react";
-import { useDeviceId } from "@/hooks/useDeviceId";
+import { Bell, Moon, Sun, Globe, LogIn, LogOut, User } from "lucide-react";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { AuthDialog } from "@/components/auth/AuthDialog";
 import { toast } from "sonner";
 import { GlassCard } from "@/components/shared/GlassCard";
 
@@ -25,13 +26,14 @@ const languages = [
 ];
 
 export function SettingsClient() {
-  const deviceId = useDeviceId();
+  const { user, token, logout } = useAuthContext();
   const [darkMode, setDarkMode] = useState(true);
   const [language, setLanguage] = useState("en");
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [notificationPermission, setNotificationPermission] = useState<
     "default" | "granted" | "denied"
   >("default");
+  const [showAuth, setShowAuth] = useState(false);
 
   useEffect(() => {
     const isDark = document.documentElement.classList.contains("dark");
@@ -74,7 +76,7 @@ export function SettingsClient() {
     if (permission === "granted") {
       setNotificationsEnabled(true);
 
-      if ("serviceWorker" in navigator && deviceId) {
+      if ("serviceWorker" in navigator && user && token) {
         try {
           const registration = await navigator.serviceWorker.ready;
           const subscription = await registration.pushManager.subscribe({
@@ -87,7 +89,7 @@ export function SettingsClient() {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "X-Device-ID": deviceId,
+              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
               endpoint: subJson.endpoint,
@@ -119,11 +121,16 @@ export function SettingsClient() {
           const endpoint = subscription.endpoint;
           await subscription.unsubscribe();
 
-          await fetch("/api/notifications/unsubscribe", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ endpoint }),
-          });
+          if (token) {
+            await fetch("/api/notifications/unsubscribe", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ endpoint }),
+            });
+          }
         }
 
         setNotificationsEnabled(false);
@@ -231,24 +238,45 @@ export function SettingsClient() {
         )}
       </GlassCard>
 
-      {/* Data */}
+      {/* Account */}
       <GlassCard className="space-y-4">
         <h2 className="text-sm font-semibold flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-gradient-from/15 to-gradient-via/15">
-            <Trash2 className="h-3.5 w-3.5 text-primary" />
+            <User className="h-3.5 w-3.5 text-primary" />
           </div>
-          Data
+          Account
         </h2>
 
-        <p className="text-xs text-muted-foreground">
-          Bill Buddy uses a device ID stored in your browser to manage tracked
-          bills. No account or personal information is required.
-        </p>
-
-        {deviceId && (
-          <p className="text-xs text-muted-foreground font-mono-numbers">
-            Device ID: {deviceId.slice(0, 8)}...
-          </p>
+        {user ? (
+          <>
+            <p className="text-sm text-muted-foreground">
+              Signed in as{" "}
+              <span className="font-medium text-foreground">{user.email}</span>
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => logout()}
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </Button>
+          </>
+        ) : (
+          <>
+            <p className="text-xs text-muted-foreground">
+              Sign in with your email to track bills and sync across devices.
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowAuth(true)}
+            >
+              <LogIn className="h-4 w-4 mr-2" />
+              Sign In
+            </Button>
+            <AuthDialog open={showAuth} onOpenChange={setShowAuth} />
+          </>
         )}
       </GlassCard>
     </div>

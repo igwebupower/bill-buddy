@@ -1,22 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-
-async function ensureDevice(deviceId: string) {
-  return prisma.deviceProfile.upsert({
-    where: { deviceId },
-    create: { deviceId },
-    update: {},
-  });
-}
+import { getUserFromRequest } from "@/lib/auth/session";
 
 export async function GET(request: NextRequest) {
-  const deviceId = request.headers.get("X-Device-ID");
-  if (!deviceId) {
-    return NextResponse.json({ error: "Missing device ID" }, { status: 400 });
+  const user = await getUserFromRequest(request);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const tracked = await prisma.trackedBill.findMany({
-    where: { deviceId },
+    where: { userId: user.id },
     include: {
       bill: {
         include: {
@@ -37,9 +30,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const deviceId = request.headers.get("X-Device-ID");
-  if (!deviceId) {
-    return NextResponse.json({ error: "Missing device ID" }, { status: 400 });
+  const user = await getUserFromRequest(request);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const body = await request.json();
@@ -51,8 +44,6 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
-
-  await ensureDevice(deviceId);
 
   // Find the bill
   let bill = billId
@@ -89,10 +80,10 @@ export async function POST(request: NextRequest) {
 
   const tracked = await prisma.trackedBill.upsert({
     where: {
-      deviceId_billId: { deviceId, billId: bill.id },
+      userId_billId: { userId: user.id, billId: bill.id },
     },
     create: {
-      deviceId,
+      userId: user.id,
       billId: bill.id,
     },
     update: {},
@@ -103,9 +94,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const deviceId = request.headers.get("X-Device-ID");
-  if (!deviceId) {
-    return NextResponse.json({ error: "Missing device ID" }, { status: 400 });
+  const user = await getUserFromRequest(request);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { searchParams } = request.nextUrl;
@@ -127,7 +118,7 @@ export async function DELETE(request: NextRequest) {
 
   if (bill) {
     await prisma.trackedBill.deleteMany({
-      where: { deviceId, billId: bill.id },
+      where: { userId: user.id, billId: bill.id },
     });
   }
 

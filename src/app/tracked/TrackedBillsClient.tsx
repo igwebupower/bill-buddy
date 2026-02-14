@@ -5,7 +5,8 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useDeviceId } from "@/hooks/useDeviceId";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { AuthDialog } from "@/components/auth/AuthDialog";
 import { getHouseColor } from "@/lib/parliament/client";
 import { cn } from "@/lib/utils";
 import {
@@ -14,6 +15,7 @@ import {
   ScrollText,
   Bell,
   Trash2,
+  LogIn,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -34,17 +36,22 @@ interface TrackedItem {
 }
 
 export function TrackedBillsClient() {
-  const deviceId = useDeviceId();
+  const { user, token, loading: authLoading } = useAuthContext();
   const [items, setItems] = useState<TrackedItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAuth, setShowAuth] = useState(false);
 
   useEffect(() => {
-    if (!deviceId) return;
+    if (authLoading) return;
+    if (!user || !token) {
+      setLoading(false);
+      return;
+    }
 
     async function load() {
       try {
         const res = await fetch("/api/tracked", {
-          headers: { "X-Device-ID": deviceId! },
+          headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
         setItems(data.items || []);
@@ -56,15 +63,15 @@ export function TrackedBillsClient() {
     }
 
     load();
-  }, [deviceId]);
+  }, [user, token, authLoading]);
 
   async function untrack(billId: string) {
-    if (!deviceId) return;
+    if (!token) return;
 
     try {
       await fetch(`/api/tracked?billId=${billId}`, {
         method: "DELETE",
-        headers: { "X-Device-ID": deviceId },
+        headers: { Authorization: `Bearer ${token}` },
       });
       setItems((prev) => prev.filter((t) => t.bill.id !== billId));
       toast("Bill untracked");
@@ -73,12 +80,30 @@ export function TrackedBillsClient() {
     }
   }
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className="space-y-3">
         {Array.from({ length: 3 }).map((_, i) => (
           <Skeleton key={i} className="h-24" />
         ))}
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="glass rounded-xl p-12 text-center">
+        <LogIn className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
+        <h3 className="text-lg font-medium mb-1">Sign in to track bills</h3>
+        <p className="text-sm text-muted-foreground mb-6">
+          Sign in with your email to track bills and get notifications about
+          stage changes.
+        </p>
+        <Button onClick={() => setShowAuth(true)}>
+          Sign In
+          <ArrowRight className="h-4 w-4 ml-2" />
+        </Button>
+        <AuthDialog open={showAuth} onOpenChange={setShowAuth} />
       </div>
     );
   }
