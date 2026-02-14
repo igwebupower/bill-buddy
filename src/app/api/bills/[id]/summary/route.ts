@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { generateBillSummary } from "@/lib/ai/summarize";
-import { getBillById } from "@/lib/parliament/client";
+import { getBillById, getBillPublications } from "@/lib/parliament/client";
+
+// Allow up to 60s for Claude API call on Vercel
+export const maxDuration = 60;
 
 export async function POST(
   _request: NextRequest,
@@ -73,12 +76,37 @@ export async function POST(
       });
     }
 
+    // Try to get legislation URL from Parliament publications if not already set
+    let legislationUrl = bill.legislationGovUrl;
+    if (!legislationUrl && bill.parliamentId) {
+      try {
+        const pubs = await getBillPublications(bill.parliamentId);
+        for (const pub of pubs.publications || []) {
+          for (const link of pub.links || []) {
+            if (link.url?.includes("legislation.gov.uk")) {
+              legislationUrl = link.url;
+              break;
+            }
+          }
+          if (legislationUrl) break;
+        }
+        if (legislationUrl) {
+          await prisma.bill.update({
+            where: { id: bill.id },
+            data: { legislationGovUrl: legislationUrl },
+          });
+        }
+      } catch {
+        // Publications not available, continue with title-only summary
+      }
+    }
+
     // Generate new summary
     const { summary, tokensUsed } = await generateBillSummary(
       bill.shortTitle,
       bill.longTitle,
       bill.billTypeCategory || "Government",
-      bill.legislationGovUrl
+      legislationUrl
     );
 
     // Save to DB

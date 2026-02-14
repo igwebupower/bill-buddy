@@ -1,6 +1,11 @@
 import { inngest } from "./client";
 import { prisma } from "@/lib/db";
-import { getBills, getBillById, getBillStages, getBillPublications } from "@/lib/parliament/client";
+import {
+  getBills,
+  getBillById,
+  getBillStages,
+  getBillPublications,
+} from "@/lib/parliament/client";
 import { generateBillSummary } from "@/lib/ai/summarize";
 
 // ─── Sync Bills ─────────────────────────────────────────────────────────────────
@@ -164,6 +169,25 @@ export const syncBills = inngest.createFunction(
         if (page > 20) break;
       }
 
+      // Trigger summary generation for bills that don't have one yet
+      const summaryCount = await step.run("trigger-summary-generation", async () => {
+        const billsWithoutSummaries = await prisma.bill.findMany({
+          where: { summaries: { none: {} } },
+          select: { id: true },
+        });
+
+        if (billsWithoutSummaries.length > 0) {
+          await inngest.send(
+            billsWithoutSummaries.map((b) => ({
+              name: "bills/generate-summary" as const,
+              data: { billId: b.id },
+            }))
+          );
+        }
+
+        return billsWithoutSummaries.length;
+      });
+
       await step.run("complete-sync-log", async () => {
         await prisma.syncLog.update({
           where: { id: syncLog.id },
@@ -176,7 +200,7 @@ export const syncBills = inngest.createFunction(
         });
       });
 
-      return { synced: totalSynced, found: totalFound };
+      return { synced: totalSynced, found: totalFound, summariesTriggered: summaryCount };
     } catch (error) {
       await prisma.syncLog.update({
         where: { id: syncLog.id },
@@ -214,12 +238,34 @@ export const generateSummaryFn = inngest.createFunction(
     if (!bill) throw new Error(`Bill not found: ${billId}`);
     if (bill.summaries.length > 0) return { cached: true };
 
+    // Try to get legislation URL from publications if not already set
+    const legislationUrl = await step.run("fetch-legislation-url", async () => {
+      if (bill.legislationGovUrl) return bill.legislationGovUrl;
+      try {
+        const pubs = await getBillPublications(bill.parliamentId);
+        for (const pub of pubs.publications || []) {
+          for (const link of pub.links || []) {
+            if (link.url?.includes("legislation.gov.uk")) {
+              await prisma.bill.update({
+                where: { id: bill.id },
+                data: { legislationGovUrl: link.url },
+              });
+              return link.url;
+            }
+          }
+        }
+      } catch {
+        // Publications not available
+      }
+      return null;
+    });
+
     const result = await step.run("generate", async () => {
       return generateBillSummary(
         bill.shortTitle,
         bill.longTitle,
         bill.billTypeCategory || "Government",
-        bill.legislationGovUrl
+        legislationUrl
       );
     });
 
