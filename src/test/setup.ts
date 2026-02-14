@@ -42,6 +42,16 @@ vi.mock("@/lib/db", () => ({
       deleteMany: vi.fn(),
     },
     notification: { create: vi.fn() },
+    division: {
+      findMany: vi.fn(),
+      create: vi.fn(),
+      upsert: vi.fn(),
+      deleteMany: vi.fn(),
+    },
+    memberVote: {
+      createMany: vi.fn(),
+      deleteMany: vi.fn(),
+    },
     syncLog: {
       create: vi.fn(),
       update: vi.fn(),

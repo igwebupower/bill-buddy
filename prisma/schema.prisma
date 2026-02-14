@@ -33,6 +33,7 @@ model Bill {
   sponsors           BillSponsor[]
   publications       BillPublication[]
   summaries          BillSummary[]
+  divisions          Division[]
   trackedBills       TrackedBill[]
   notifications      Notification[]
 
@@ -194,6 +195,50 @@ model PushSubscription {
   updatedAt  DateTime @updatedAt
 
   @@index([userId])
+}
+
+// ─── Divisions (Votes) ──────────────────────────────────────────────────────────
+
+model Division {
+  id              String   @id @default(cuid())
+  billId          String
+  bill            Bill     @relation(fields: [billId], references: [id], onDelete: Cascade)
+  house           String   // "Commons" | "Lords"
+  divisionId      Int      // Parliament API division ID
+  divisionNumber  Int?     // Division number within session
+  title           String
+  date            DateTime
+  ayeCount        Int
+  noCount         Int
+  abstainCount    Int      @default(0)
+  noVoteCount     Int      @default(0)
+  isDeferred      Boolean  @default(false)
+  stageName       String?  // e.g. "2nd Reading", "Report Stage"
+
+  votes           MemberVote[]
+
+  createdAt       DateTime @default(now())
+
+  @@unique([house, divisionId])
+  @@index([billId])
+  @@index([date])
+}
+
+model MemberVote {
+  id            String   @id @default(cuid())
+  divisionId    String
+  division      Division @relation(fields: [divisionId], references: [id], onDelete: Cascade)
+  memberId      Int      // Parliament member ID
+  memberName    String
+  party         String?
+  constituency  String?  // "memberFrom" in API
+  lobby         String   // "Aye" | "No" | "Abstain"
+  isTeller      Boolean  @default(false)
+
+  @@unique([divisionId, memberId])
+  @@index([divisionId])
+  @@index([memberId])
+  @@index([party])
 }
 
 // ─── Notifications ──────────────────────────────────────────────────────────────

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SummarySection } from "@/components/bills/SummarySection";
+import { DivisionsList } from "@/components/bills/DivisionsList";
 import { StageTimeline } from "@/components/bills/StageTimeline";
 import { TrackButton } from "@/components/bills/TrackButton";
 import { ShareDialog } from "@/components/bills/ShareDialog";
@@ -19,6 +20,7 @@ import {
   ScrollText,
   User,
   FileText,
+  Vote,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -217,6 +219,14 @@ export function BillDetailClient({ id }: BillDetailClientProps) {
               billId={id}
               existingSummary={bill.summaries?.[0] || null}
             />
+          </section>
+
+          <section>
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <Vote className="h-5 w-5" />
+              Divisions &amp; Votes
+            </h2>
+            <DivisionsList billId={bill.id} />
           </section>
         </div>
 

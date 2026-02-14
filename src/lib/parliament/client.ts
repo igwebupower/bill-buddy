@@ -4,9 +4,15 @@ import type {
   ParliamentStagesResponse,
   ParliamentPublicationsResponse,
   BillsQueryParams,
+  CommonsDivisionSearchResult,
+  CommonsDivisionDetail,
+  LordsDivisionSearchResult,
+  LordsDivisionDetail,
 } from "./types";
 
 const BASE_URL = "https://bills-api.parliament.uk/api/v1";
+const COMMONS_VOTES_URL = "https://commonsvotes-api.parliament.uk";
+const LORDS_VOTES_URL = "https://lordsvotes-api.parliament.uk";
 
 async function fetchParliament<T>(
   path: string,
@@ -85,6 +91,95 @@ export async function getBillPublications(
 ): Promise<ParliamentPublicationsResponse> {
   return fetchParliament<ParliamentPublicationsResponse>(
     `/Bills/${billId}/Publications`
+  );
+}
+
+// ─── Votes / Divisions API ─────────────────────────────────────────────────────
+
+async function fetchVotesApi<T>(
+  baseUrl: string,
+  path: string,
+  params?: Record<string, string | number | boolean | undefined>
+): Promise<T> {
+  const url = new URL(`${baseUrl}${path}`);
+
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        url.searchParams.set(key, String(value));
+      }
+    });
+  }
+
+  const res = await fetch(url.toString(), {
+    headers: { Accept: "application/json" },
+    next: { revalidate: 3600 },
+  });
+
+  if (!res.ok) {
+    throw new Error(
+      `Votes API error: ${res.status} ${res.statusText} for ${path}`
+    );
+  }
+
+  return res.json();
+}
+
+export async function searchCommonsDivisions(params: {
+  searchTerm?: string;
+  startDate?: string;
+  endDate?: string;
+  skip?: number;
+  take?: number;
+}): Promise<CommonsDivisionSearchResult[]> {
+  return fetchVotesApi<CommonsDivisionSearchResult[]>(
+    COMMONS_VOTES_URL,
+    "/data/divisions.json/search",
+    {
+      "queryParameters.searchTerm": params.searchTerm,
+      "queryParameters.startDate": params.startDate,
+      "queryParameters.endDate": params.endDate,
+      skip: params.skip ?? 0,
+      take: params.take ?? 25,
+    }
+  );
+}
+
+export async function getCommonsDivision(
+  divisionId: number
+): Promise<CommonsDivisionDetail> {
+  return fetchVotesApi<CommonsDivisionDetail>(
+    COMMONS_VOTES_URL,
+    `/data/division/${divisionId}.json`
+  );
+}
+
+export async function searchLordsDivisions(params: {
+  searchTerm?: string;
+  startDate?: string;
+  endDate?: string;
+  skip?: number;
+  take?: number;
+}): Promise<LordsDivisionSearchResult[]> {
+  return fetchVotesApi<LordsDivisionSearchResult[]>(
+    LORDS_VOTES_URL,
+    "/data/Divisions/search",
+    {
+      SearchTerm: params.searchTerm,
+      StartDate: params.startDate,
+      EndDate: params.endDate,
+      Skip: params.skip ?? 0,
+      Take: params.take ?? 25,
+    }
+  );
+}
+
+export async function getLordsDivision(
+  divisionId: number
+): Promise<LordsDivisionDetail> {
+  return fetchVotesApi<LordsDivisionDetail>(
+    LORDS_VOTES_URL,
+    `/data/Division/${divisionId}`
   );
 }
 

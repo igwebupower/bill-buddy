@@ -126,6 +126,85 @@ export interface ParliamentPublicationLink {
   contentType: string;
 }
 
+// Types for Commons/Lords Votes API responses (PascalCase from API)
+
+export interface CommonsDivisionSearchResult {
+  DivisionId: number;
+  Date: string;
+  PublicationUpdated: string;
+  Number: number;
+  IsDeferred: boolean;
+  EVELType: string;
+  EVELCountry: string;
+  Title: string;
+  AyeCount: number;
+  NoCount: number;
+}
+
+export interface CommonsDivisionDetail {
+  DivisionId: number;
+  Date: string;
+  PublicationUpdated: string;
+  Number: number;
+  IsDeferred: boolean;
+  EVELType: string;
+  EVELCountry: string;
+  Title: string;
+  AyeCount: number;
+  NoCount: number;
+  AyeTellers: CommonsMemberVote[];
+  NoTellers: CommonsMemberVote[];
+  Ayes: CommonsMemberVote[];
+  Noes: CommonsMemberVote[];
+  NoVoteRecorded: CommonsMemberVote[];
+}
+
+export interface CommonsMemberVote {
+  MemberId: number;
+  Name: string;
+  Party: string;
+  SubParty: string;
+  PartyColour: string;
+  PartyAbbreviation: string;
+  MemberFrom: string;
+  ListAs: string;
+  ProxyName: string | null;
+}
+
+export interface LordsDivisionSearchResult {
+  DivisionId: number;
+  Date: string;
+  Number: number;
+  Title: string;
+  IsWhipped: boolean;
+  IsGovernmentContent: boolean;
+  AuthoritativeContentCount: number;
+  AuthoritativeNotContentCount: number;
+}
+
+export interface LordsDivisionDetail {
+  DivisionId: number;
+  Date: string;
+  Number: number;
+  Title: string;
+  IsWhipped: boolean;
+  IsGovernmentContent: boolean;
+  AuthoritativeContentCount: number;
+  AuthoritativeNotContentCount: number;
+  Contents: LordsMemberVote[];
+  NotContents: LordsMemberVote[];
+}
+
+export interface LordsMemberVote {
+  MemberId: number;
+  Name: string;
+  Party: string;
+  PartyColour: string;
+  PartyAbbreviation: string;
+  MemberFrom: string;
+  ListAs: string;
+}
+
 export interface BillsQueryParams {
   search?: string;
   house?: "Commons" | "Lords" | "Unassigned";

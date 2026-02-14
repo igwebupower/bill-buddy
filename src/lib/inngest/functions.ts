@@ -1,6 +1,6 @@
 import { inngest } from "./client";
 import { prisma } from "@/lib/db";
-import { getBills, getBillById, getBillStages, getBillPublications } from "@/lib/parliament/client";
+import { getBills, getBillById, getBillStages, getBillPublications, searchCommonsDivisions, getCommonsDivision, searchLordsDivisions, getLordsDivision } from "@/lib/parliament/client";
 import { generateBillSummary } from "@/lib/ai/summarize";
 
 // ─── Sync Bills ─────────────────────────────────────────────────────────────────
@@ -306,5 +306,176 @@ export const checkStageChanges = inngest.createFunction(
     }
 
     return { checked: trackedBills.length, changes: changesDetected };
+  }
+);
+
+// ─── Sync Divisions (Votes) ─────────────────────────────────────────────────────
+
+export const syncDivisions = inngest.createFunction(
+  { id: "sync-divisions", concurrency: [{ limit: 1 }] },
+  { event: "bills/sync-divisions" },
+  async ({ event, step }) => {
+    const { billId } = event.data;
+
+    const bill = await step.run("fetch-bill", async () => {
+      return prisma.bill.findUnique({
+        where: { id: billId },
+        include: {
+          stages: { orderBy: { sortOrder: "asc" } },
+          divisions: { select: { divisionId: true, house: true } },
+        },
+      });
+    });
+
+    if (!bill) throw new Error(`Bill not found: ${billId}`);
+
+    let totalSynced = 0;
+
+    // Search Commons divisions by bill title
+    const commonsDivisions = await step.run("search-commons", async () => {
+      try {
+        return await searchCommonsDivisions({
+          searchTerm: bill.shortTitle,
+          take: 100,
+        });
+      } catch {
+        return [];
+      }
+    });
+
+    const existingIds = new Set(
+      bill.divisions.map((d) => `${d.house}:${d.divisionId}`)
+    );
+
+    // Sync each Commons division
+    for (const div of commonsDivisions) {
+      if (existingIds.has(`Commons:${div.DivisionId}`)) continue;
+
+      await step.run(`sync-commons-${div.DivisionId}`, async () => {
+        const detail = await getCommonsDivision(div.DivisionId);
+
+        const division = await prisma.division.create({
+          data: {
+            billId: bill.id,
+            house: "Commons",
+            divisionId: detail.DivisionId,
+            divisionNumber: detail.Number,
+            title: detail.Title,
+            date: new Date(detail.Date),
+            ayeCount: detail.AyeCount,
+            noCount: detail.NoCount,
+            isDeferred: detail.IsDeferred,
+          },
+        });
+
+        // Bulk insert member votes
+        const votes = [
+          ...detail.Ayes.map((m) => ({
+            divisionId: division.id,
+            memberId: m.MemberId,
+            memberName: m.Name,
+            party: m.Party,
+            constituency: m.MemberFrom,
+            lobby: "Aye" as const,
+            isTeller: false,
+          })),
+          ...detail.Noes.map((m) => ({
+            divisionId: division.id,
+            memberId: m.MemberId,
+            memberName: m.Name,
+            party: m.Party,
+            constituency: m.MemberFrom,
+            lobby: "No" as const,
+            isTeller: false,
+          })),
+          ...detail.AyeTellers.map((m) => ({
+            divisionId: division.id,
+            memberId: m.MemberId,
+            memberName: m.Name,
+            party: m.Party,
+            constituency: m.MemberFrom,
+            lobby: "Aye" as const,
+            isTeller: true,
+          })),
+          ...detail.NoTellers.map((m) => ({
+            divisionId: division.id,
+            memberId: m.MemberId,
+            memberName: m.Name,
+            party: m.Party,
+            constituency: m.MemberFrom,
+            lobby: "No" as const,
+            isTeller: true,
+          })),
+        ];
+
+        if (votes.length > 0) {
+          await prisma.memberVote.createMany({ data: votes });
+        }
+      });
+
+      totalSynced++;
+    }
+
+    // Search Lords divisions by bill title
+    const lordsDivisions = await step.run("search-lords", async () => {
+      try {
+        return await searchLordsDivisions({
+          searchTerm: bill.shortTitle,
+          take: 100,
+        });
+      } catch {
+        return [];
+      }
+    });
+
+    for (const div of lordsDivisions) {
+      if (existingIds.has(`Lords:${div.DivisionId}`)) continue;
+
+      await step.run(`sync-lords-${div.DivisionId}`, async () => {
+        const detail = await getLordsDivision(div.DivisionId);
+
+        const division = await prisma.division.create({
+          data: {
+            billId: bill.id,
+            house: "Lords",
+            divisionId: detail.DivisionId,
+            divisionNumber: detail.Number,
+            title: detail.Title,
+            date: new Date(detail.Date),
+            ayeCount: detail.AuthoritativeContentCount,
+            noCount: detail.AuthoritativeNotContentCount,
+          },
+        });
+
+        const votes = [
+          ...detail.Contents.map((m) => ({
+            divisionId: division.id,
+            memberId: m.MemberId,
+            memberName: m.Name,
+            party: m.Party,
+            constituency: m.MemberFrom,
+            lobby: "Aye" as const,
+            isTeller: false,
+          })),
+          ...detail.NotContents.map((m) => ({
+            divisionId: division.id,
+            memberId: m.MemberId,
+            memberName: m.Name,
+            party: m.Party,
+            constituency: m.MemberFrom,
+            lobby: "No" as const,
+            isTeller: false,
+          })),
+        ];
+
+        if (votes.length > 0) {
+          await prisma.memberVote.createMany({ data: votes });
+        }
+      });
+
+      totalSynced++;
+    }
+
+    return { billId, divisionssynced: totalSynced };
   }
 );
