@@ -1,13 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Sparkles, RefreshCw, AlertCircle, Users, List, Target, Clock } from "lucide-react";
+import { Sparkles, RefreshCw, AlertCircle, Users, List, Target, Clock, Globe } from "lucide-react";
 import { GlassCard } from "@/components/shared/GlassCard";
+
+const LANGUAGE_LABELS: Record<string, string> = {
+  en: "English",
+  cy: "Cymraeg",
+  ur: "اردو",
+  pl: "Polski",
+  ar: "العربية",
+};
 
 interface Summary {
   overview: string;
@@ -21,12 +29,14 @@ interface Summary {
 interface SummarySectionProps {
   billId: string;
   existingSummary?: Summary | null;
+  language?: string;
 }
 
-export function SummarySection({ billId, existingSummary }: SummarySectionProps) {
+export function SummarySection({ billId, existingSummary, language: propLanguage }: SummarySectionProps) {
   const [summary, setSummary] = useState<Summary | null>(existingSummary || null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [summaryLanguage, setSummaryLanguage] = useState(propLanguage || "en");
 
   const keyChanges: string[] = summary
     ? Array.isArray(summary.keyChanges)
@@ -40,6 +50,14 @@ export function SummarySection({ billId, existingSummary }: SummarySectionProps)
       : JSON.parse(summary.impacts as string)
     : [];
 
+  // Read language from localStorage if not provided via props
+  useEffect(() => {
+    const saved = localStorage.getItem("bill-buddy-language");
+    if (saved && saved !== summaryLanguage) {
+      setSummaryLanguage(saved);
+    }
+  }, []);
+
   async function generateSummary() {
     setLoading(true);
     setError(null);
@@ -47,6 +65,8 @@ export function SummarySection({ billId, existingSummary }: SummarySectionProps)
     try {
       const res = await fetch(`/api/bills/${billId}/summary`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ language: summaryLanguage }),
       });
 
       if (!res.ok) {
@@ -55,6 +75,9 @@ export function SummarySection({ billId, existingSummary }: SummarySectionProps)
 
       const data = await res.json();
       setSummary(data.summary);
+      if (data.language) {
+        setSummaryLanguage(data.language);
+      }
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to generate summary"
@@ -70,7 +93,11 @@ export function SummarySection({ billId, existingSummary }: SummarySectionProps)
         <div className="space-y-4">
           <div className="flex items-center gap-2 text-primary">
             <Sparkles className="h-5 w-5 animate-pulse" />
-            <span className="text-sm font-medium">Generating AI summary...</span>
+            <span className="text-sm font-medium">
+              {summaryLanguage !== "en"
+                ? `Generating & translating summary to ${LANGUAGE_LABELS[summaryLanguage] || summaryLanguage}...`
+                : "Generating AI summary..."}
+            </span>
           </div>
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-5/6" />
@@ -106,6 +133,16 @@ export function SummarySection({ billId, existingSummary }: SummarySectionProps)
 
   return (
     <div className="space-y-4">
+      {/* Language indicator */}
+      {summaryLanguage !== "en" && (
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary" className="gap-1.5 text-xs">
+            <Globe className="h-3 w-3" />
+            {LANGUAGE_LABELS[summaryLanguage] || summaryLanguage}
+          </Badge>
+        </div>
+      )}
+
       {/* TLDR with gradient left accent */}
       <div className="glass relative overflow-hidden rounded-xl p-4">
         <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-gradient-from via-gradient-via to-gradient-to" />

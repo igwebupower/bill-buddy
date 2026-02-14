@@ -58,9 +58,26 @@ export function SettingsClient() {
     localStorage.setItem("bill-buddy-theme", dark ? "dark" : "light");
   }
 
-  function changeLanguage(lang: string) {
+  async function changeLanguage(lang: string) {
     setLanguage(lang);
     localStorage.setItem("bill-buddy-language", lang);
+
+    // Sync to server if authenticated
+    if (token) {
+      try {
+        await fetch("/api/user/preferences", {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ preferredLang: lang }),
+        });
+      } catch {
+        // Non-critical — localStorage is the primary source
+      }
+    }
+
     toast("Language preference saved");
   }
 

@@ -55,10 +55,11 @@ async function fetchFromParliamentAPI(parliamentId: number) {
 }
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+  const language = request.nextUrl.searchParams.get("language") || "en";
 
   // Try DB first
   try {
@@ -74,12 +75,22 @@ export async function GET(
         sponsors: { orderBy: { sortOrder: "asc" } },
         publications: { orderBy: { displayDate: "desc" } },
         summaries: {
-          where: { language: "en" },
+          where: { language },
           orderBy: { version: "desc" },
           take: 1,
         },
       },
     });
+
+    // If no summary in requested language, fall back to English
+    if (dbBill && dbBill.summaries.length === 0 && language !== "en") {
+      const enSummaries = await prisma.billSummary.findMany({
+        where: { billId: dbBill.id, language: "en" },
+        orderBy: { version: "desc" },
+        take: 1,
+      });
+      dbBill.summaries = enSummaries;
+    }
 
     if (dbBill) {
       return NextResponse.json(dbBill);

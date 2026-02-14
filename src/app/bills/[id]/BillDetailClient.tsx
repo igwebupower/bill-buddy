@@ -76,11 +76,16 @@ export function BillDetailClient({ id }: BillDetailClientProps) {
   const [bill, setBill] = useState<BillDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [language, setLanguage] = useState("en");
 
   useEffect(() => {
+    const savedLang = localStorage.getItem("bill-buddy-language") || "en";
+    setLanguage(savedLang);
+
     async function load() {
       try {
-        const res = await fetch(`/api/bills/${id}`);
+        const langParam = savedLang !== "en" ? `?language=${savedLang}` : "";
+        const res = await fetch(`/api/bills/${id}${langParam}`);
         if (!res.ok) throw new Error("Bill not found");
         const data = await res.json();
         setBill(data);
@@ -218,6 +223,7 @@ export function BillDetailClient({ id }: BillDetailClientProps) {
             <SummarySection
               billId={id}
               existingSummary={bill.summaries?.[0] || null}
+              language={language}
             />
           </section>
 
