@@ -52,6 +52,15 @@ export async function getBills(
     sortOrder = "desc",
   } = params;
 
+  const sortOrderValue =
+    sortField === "title"
+      ? sortOrder === "asc"
+        ? "TitleAscending"
+        : "TitleDescending"
+      : sortOrder === "asc"
+        ? "DateUpdatedAscending"
+        : "DateUpdatedDescending";
+
   return fetchParliament<ParliamentBillsResponse>("/Bills", {
     SearchTerm: search,
     CurrentHouse: currentHouse,
@@ -61,8 +70,7 @@ export async function getBills(
     Session: session,
     Skip: (page - 1) * take,
     Take: take,
-    SortField: sortField === "title" ? "Title" : "DateUpdated",
-    SortOrder: sortOrder === "asc" ? 1 : 0,
+    SortOrder: sortOrderValue,
   });
 }
 
