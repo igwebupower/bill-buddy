@@ -194,12 +194,12 @@ export function SettingsClient() {
           Language
         </h2>
 
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <Label className="text-sm">
             Preferred summary language
           </Label>
           <Select value={language} onValueChange={changeLanguage}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-full sm:w-[180px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

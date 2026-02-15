@@ -204,7 +204,7 @@ export function BillDetailClient({ id }: BillDetailClientProps) {
         <p className="text-muted-foreground">{bill.longTitle}</p>
 
         {/* Actions */}
-        <div className="flex gap-2 pt-1">
+        <div className="flex flex-wrap gap-2 pt-1">
           <TrackButton
             billId={id}
             parliamentId={bill.parliamentId}
