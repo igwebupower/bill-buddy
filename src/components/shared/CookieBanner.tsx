@@ -30,8 +30,10 @@ export function CookieBanner() {
           <p className="text-sm font-medium">Cookies &amp; Local Storage</p>
           <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
             Bill Buddy uses local storage to save your preferences (theme,
-            language, tracked bills) and a device ID for push notifications. We
-            don&apos;t use analytics cookies or share data with third parties.
+            language, tracked bills) and a device ID for push notifications.
+            If you subscribe to bill tracking, your email is stored to send
+            stage-change alerts. We don&apos;t use analytics cookies or share
+            your data with third parties.
           </p>
           <div className="flex gap-2 mt-3">
             <Button size="sm" onClick={accept}>
