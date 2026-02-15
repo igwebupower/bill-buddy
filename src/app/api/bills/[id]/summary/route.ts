@@ -301,9 +301,10 @@ export async function POST(
     });
   } catch (error) {
     console.error("Error generating summary:", error);
-    return NextResponse.json(
-      { error: "Failed to generate summary" },
-      { status: 500 }
-    );
+    const message =
+      error instanceof Error && error.message.includes("ANTHROPIC_API_KEY")
+        ? "AI service is not configured. Please set the ANTHROPIC_API_KEY environment variable."
+        : "Failed to generate summary";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

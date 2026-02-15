@@ -52,9 +52,10 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Letter draft error:", error);
-    return NextResponse.json(
-      { error: "Failed to draft letter. Please try again." },
-      { status: 500 }
-    );
+    const message =
+      error instanceof Error && error.message.includes("ANTHROPIC_API_KEY")
+        ? "AI service is not configured. Please set the ANTHROPIC_API_KEY environment variable."
+        : "Failed to draft letter. Please try again.";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
