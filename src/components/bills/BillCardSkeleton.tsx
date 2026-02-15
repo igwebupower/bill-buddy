@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function BillCardSkeleton() {
   return (
-    <div className="glass rounded-xl p-5 space-y-3">
+    <div className="rounded-xl border border-border bg-card p-5 space-y-3">
       <div className="flex gap-2">
         <Skeleton className="h-5 w-20 rounded-full" />
         <Skeleton className="h-5 w-24 rounded-full" />

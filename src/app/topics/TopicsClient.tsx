@@ -136,10 +136,10 @@ export function TopicsClient() {
                 handleTopicClick(topic.name);
               }
             }}
-            className="group glass gradient-border glass-hover relative h-full cursor-pointer rounded-xl p-6 transition-all duration-300 hover:shadow-glow hover:-translate-y-0.5"
+            className="group relative h-full cursor-pointer rounded-xl border border-border bg-card p-6 transition-colors duration-200 hover:border-foreground/15"
           >
             <div className="flex flex-col gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-gradient-to-br from-gradient-from/15 to-gradient-via/15 text-primary transition-all duration-300 group-hover:from-gradient-from/25 group-hover:to-gradient-via/25 group-hover:shadow-[0_0_16px_var(--glow-color)]">
+              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/8 text-primary transition-colors duration-200 group-hover:bg-primary/12">
                 <topic.icon className="h-5 w-5" />
               </div>
 

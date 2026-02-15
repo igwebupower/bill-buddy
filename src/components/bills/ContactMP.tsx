@@ -80,7 +80,7 @@ export function ContactMP({ billTitle }: ContactMPProps) {
   return (
     <GlassCard>
       <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-gradient-from/15 to-gradient-via/15">
+        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/8">
           <Mail className="h-3.5 w-3.5 text-primary" />
         </div>
         Contact Your MP
@@ -121,7 +121,7 @@ export function ContactMP({ billTitle }: ContactMPProps) {
             <img
               src={mp.thumbnailUrl}
               alt={mp.name}
-              className="h-12 w-12 rounded-full object-cover ring-2 ring-glass-border"
+              className="h-12 w-12 rounded-full object-cover ring-2 ring-border"
             />
             <div className="min-w-0">
               <p className="text-sm font-semibold truncate">{mp.name}</p>

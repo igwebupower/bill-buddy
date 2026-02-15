@@ -45,9 +45,9 @@ export function StageTimeline({ stages, currentStage }: StageTimelineProps) {
                 className={cn(
                   "flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
                   isPast &&
-                    "border-gradient-from bg-gradient-to-br from-gradient-from to-gradient-via text-white shadow-[0_0_10px_var(--glow-color)]",
+                    "border-primary bg-primary text-primary-foreground",
                   isCurrent &&
-                    "border-gradient-from bg-gradient-from/20 text-gradient-from animate-pulse shadow-[0_0_12px_var(--glow-color)]",
+                    "border-primary bg-primary/15 text-primary animate-pulse",
                   isFuture && "border-border bg-muted text-muted-foreground"
                 )}
               >
@@ -64,7 +64,7 @@ export function StageTimeline({ stages, currentStage }: StageTimelineProps) {
                   className={cn(
                     "w-0.5 flex-1 min-h-6",
                     isPast
-                      ? "bg-gradient-to-b from-gradient-from to-gradient-via"
+                      ? "bg-primary"
                       : "bg-border"
                   )}
                 />

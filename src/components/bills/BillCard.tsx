@@ -33,19 +33,17 @@ export function BillCard({ bill }: BillCardProps) {
 
   return (
     <Link href={`/bills/${bill.parliamentId}`}>
-      <div className="group glass gradient-border relative overflow-hidden rounded-xl p-5 transition-all duration-300 glass-hover hover:shadow-glow">
-        {/* Progress bar with gradient and glow tip */}
+      <div className="group relative overflow-hidden rounded-xl border border-border bg-card p-5 transition-colors duration-200 hover:border-foreground/15">
+        {/* Progress bar */}
         <div className="absolute top-0 left-0 h-0.5 w-full bg-surface-2">
           <div
-            className="relative h-full bg-gradient-to-r from-gradient-from via-gradient-via to-gradient-to transition-all duration-500"
+            className="h-full bg-primary transition-all duration-500"
             style={{ width: `${progress}%` }}
-          >
-            <div className="absolute right-0 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-gradient-to shadow-[0_0_8px_var(--gradient-to)]" />
-          </div>
+          />
         </div>
 
         <div className="space-y-3">
-          {/* Header: badges with dot indicators */}
+          {/* Header: badges */}
           <div className="flex flex-wrap items-center gap-2">
             {bill.currentHouse && (
               <Badge

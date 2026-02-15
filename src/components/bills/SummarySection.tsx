@@ -102,8 +102,8 @@ export function SummarySection({ billId, existingSummary }: SummarySectionProps)
   return (
     <div className="space-y-4">
       {/* TLDR with gradient left accent */}
-      <div className="glass relative overflow-hidden rounded-xl p-4">
-        <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-gradient-from via-gradient-via to-gradient-to" />
+      <div className="relative overflow-hidden rounded-xl border border-border bg-card p-4">
+        <div className="absolute left-0 top-0 h-full w-1 bg-primary" />
         <div className="flex items-start gap-2 pl-3">
           <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
           <div>
@@ -157,7 +157,7 @@ export function SummarySection({ billId, existingSummary }: SummarySectionProps)
           <ul className="space-y-3">
             {keyChanges.map((change, i) => (
               <li key={i} className="flex gap-3">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-gradient-from to-gradient-via text-xs font-medium text-white">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
                   {i + 1}
                 </span>
                 <p className="text-sm leading-relaxed pt-0.5">{change}</p>

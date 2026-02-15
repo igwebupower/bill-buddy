@@ -157,7 +157,7 @@ export function TrackedBillsClient() {
 
   if (items.length === 0) {
     return (
-      <div className="glass rounded-xl p-12 text-center">
+      <div className="rounded-xl border border-border bg-card p-12 text-center">
         <BookmarkCheck className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
         <h3 className="text-lg font-medium mb-1">No tracked bills</h3>
         <p className="text-sm text-muted-foreground mb-6">
@@ -201,7 +201,7 @@ export function TrackedBillsClient() {
         <GlassCard className="space-y-3">
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-gradient-from/15 to-gradient-via/15">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/8">
                 <Mail className="h-3.5 w-3.5 text-primary" />
               </div>
               <div>
@@ -240,7 +240,7 @@ export function TrackedBillsClient() {
       ) : editingEmail ? (
         <GlassCard className="space-y-3">
           <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-gradient-from/15 to-gradient-via/15">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/8">
               <Mail className="h-3.5 w-3.5 text-primary" />
             </div>
             <h3 className="text-sm font-semibold">Update email</h3>
@@ -277,7 +277,7 @@ export function TrackedBillsClient() {
       {items.map((item) => (
         <div
           key={item.id}
-          className="glass gradient-border glass-hover rounded-xl p-4 flex items-center gap-4 transition-all"
+          className="rounded-xl border border-border bg-card p-4 flex items-center gap-4 transition-colors hover:border-foreground/15"
         >
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">

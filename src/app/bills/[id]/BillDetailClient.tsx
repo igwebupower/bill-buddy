@@ -133,8 +133,8 @@ export function BillDetailClient({ id }: BillDetailClientProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", stiffness: 260, damping: 24 }}
     >
-      {/* Gradient accent bar */}
-      <div className="h-1 w-full rounded-full bg-gradient-to-r from-gradient-from via-gradient-via to-gradient-to opacity-60" />
+      {/* Accent bar */}
+      <div className="h-0.5 w-full rounded-full bg-primary/30" />
 
       {/* Back link */}
       <Link
@@ -240,7 +240,7 @@ export function BillDetailClient({ id }: BillDetailClientProps) {
               <div className="space-y-3">
                 {bill.sponsors.map((sponsor, i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-gradient-from/20 to-gradient-via/20 ring-1 ring-glass-border">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/8 ring-1 ring-border">
                       <User className="h-4 w-4 text-primary" />
                     </div>
                     <div>

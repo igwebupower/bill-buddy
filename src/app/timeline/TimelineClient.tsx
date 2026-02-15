@@ -70,9 +70,9 @@ function groupBillsByMonth(bills: TimelineBill[]): MonthGroup[] {
 function getBarColor(house: string | null): string {
   switch (house) {
     case "Commons":
-      return "bg-gradient-to-r from-commons-text/60 to-commons-text/90";
+      return "bg-commons-text/80";
     case "Lords":
-      return "bg-gradient-to-r from-lords-text/60 to-lords-text/90";
+      return "bg-lords-text/80";
     default:
       return "bg-muted-foreground/50";
   }
@@ -153,7 +153,7 @@ export function TimelineClient() {
 
   if (bills.length === 0) {
     return (
-      <div className="glass rounded-xl p-12 text-center">
+      <div className="rounded-xl border border-border bg-card p-12 text-center">
         <ScrollText className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
         <h3 className="text-lg font-medium mb-1">No bills to display</h3>
         <p className="text-sm text-muted-foreground mb-6">
@@ -184,7 +184,7 @@ export function TimelineClient() {
                 onClick={() => setHouseFilter(filter)}
                 className={cn(
                   "text-xs h-8",
-                  houseFilter !== filter && "border-glass-border glass"
+                  houseFilter !== filter && "border-border"
                 )}
               >
                 {filter === "all" ? "All Houses" : filter}
@@ -197,7 +197,7 @@ export function TimelineClient() {
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8 border-glass-border glass"
+            className="h-8 w-8 border-border"
             onClick={() => scrollTimeline("left")}
           >
             <ChevronLeft className="h-4 w-4" />
@@ -205,7 +205,7 @@ export function TimelineClient() {
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8 border-glass-border glass"
+            className="h-8 w-8 border-border"
             onClick={() => scrollTimeline("right")}
           >
             <ChevronRight className="h-4 w-4" />
@@ -229,7 +229,7 @@ export function TimelineClient() {
       </div>
 
       {/* Horizontal scrollable timeline */}
-      <div className="glass rounded-xl overflow-hidden">
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
         <ScrollArea className="w-full">
           <div ref={scrollRef} className="overflow-x-auto">
             <div className="flex min-w-max">
@@ -239,11 +239,11 @@ export function TimelineClient() {
                   className={cn(
                     "flex-shrink-0 w-[340px]",
                     groupIdx < monthGroups.length - 1 &&
-                      "border-r border-glass-border"
+                      "border-r border-border"
                   )}
                 >
                   {/* Month header */}
-                  <div className="sticky top-0 z-10 glass border-b border-glass-border px-4 py-3">
+                  <div className="sticky top-0 z-10 bg-card border-b border-border px-4 py-3">
                     <h3 className="text-sm font-semibold">{group.label}</h3>
                     <p className="text-xs text-muted-foreground font-mono-numbers">
                       {group.bills.length} bill
@@ -265,7 +265,7 @@ export function TimelineClient() {
                         <motion.div
                           key={bill.parliamentId}
                           variants={fadeUp}
-                          className="group cursor-pointer rounded-lg border border-glass-border bg-surface-1/50 p-3 transition-all duration-200 hover:border-primary/30 hover:bg-surface-2/50 hover:shadow-glow"
+                          className="group cursor-pointer rounded-lg border border-border bg-surface-1 p-3 transition-colors duration-200 hover:border-primary/30 hover:bg-surface-2"
                           onClick={() =>
                             router.push(`/bills/${bill.parliamentId}`)
                           }
@@ -373,7 +373,7 @@ export function TimelineClient() {
                 return (
                   <div
                     key={bill.parliamentId}
-                    className="glass glass-hover rounded-xl p-3 cursor-pointer transition-all"
+                    className="rounded-xl border border-border bg-card p-3 cursor-pointer transition-colors hover:border-foreground/15"
                     onClick={() => router.push(`/bills/${bill.parliamentId}`)}
                     role="button"
                     tabIndex={0}

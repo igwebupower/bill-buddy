@@ -9,17 +9,13 @@ interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function GlassCard({
   className,
-  glow,
-  gradientBorder,
   children,
   ...props
 }: GlassCardProps) {
   return (
     <div
       className={cn(
-        "glass rounded-xl p-5 transition-all duration-300",
-        gradientBorder && "gradient-border glass-hover",
-        glow && "shadow-glow",
+        "rounded-xl border border-border bg-card p-5 transition-colors duration-200",
         className
       )}
       {...props}
