@@ -59,6 +59,9 @@ export function SettingsClient() {
   function changeLanguage(lang: string) {
     setLanguage(lang);
     localStorage.setItem("bill-buddy-language", lang);
+    window.dispatchEvent(
+      new CustomEvent("bill-buddy-language-change", { detail: lang })
+    );
     toast("Language preference saved");
   }
 
