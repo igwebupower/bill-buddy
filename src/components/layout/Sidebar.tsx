@@ -11,6 +11,7 @@ import {
   Landmark,
   Settings,
   X,
+  Heart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -131,6 +132,14 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             >
               Terms
             </Link>
+            <a
+              href="https://buymeacoffee.com/johnigwe88m"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+            >
+              <Heart className="h-3 w-3" /> Support
+            </a>
           </div>
         </div>
       </aside>

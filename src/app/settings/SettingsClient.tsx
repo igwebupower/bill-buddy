@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Bell, Moon, Sun, Trash2, AlertCircle, Mail } from "lucide-react";
+import { Bell, Moon, Sun, Trash2, AlertCircle, Mail, Heart } from "lucide-react";
 import { useDeviceId } from "@/hooks/useDeviceId";
 import { toast } from "sonner";
 import { GlassCard } from "@/components/shared/GlassCard";
@@ -355,6 +355,32 @@ export function SettingsClient() {
         >
           <Trash2 className="h-3.5 w-3.5 mr-2" />
           Clear all local data
+        </Button>
+      </GlassCard>
+
+      {/* Support */}
+      <GlassCard className="space-y-4">
+        <h2 className="text-sm font-semibold flex items-center gap-2">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-gradient-from/15 to-gradient-via/15">
+            <Heart className="h-3.5 w-3.5 text-primary" />
+          </div>
+          Support BillBrief
+        </h2>
+
+        <p className="text-xs text-muted-foreground">
+          BillBrief is free and open source. If you find it useful, you can
+          support its development.
+        </p>
+
+        <Button variant="outline" size="sm" asChild>
+          <a
+            href="https://buymeacoffee.com/johnigwe88m"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Heart className="h-3.5 w-3.5 mr-2" />
+            Buy me a coffee
+          </a>
         </Button>
       </GlassCard>
     </div>

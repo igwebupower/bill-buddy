@@ -292,6 +292,17 @@ export default function HomePage() {
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Link>
             </Button>
+            <p className="mt-4 text-xs text-muted-foreground">
+              Free &amp; open source{" · "}
+              <a
+                href="https://buymeacoffee.com/johnigwe88m"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-primary transition-colors"
+              >
+                Support the project
+              </a>
+            </p>
           </div>
         </div>
       </section>
