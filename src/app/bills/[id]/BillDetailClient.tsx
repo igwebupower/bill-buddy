@@ -78,7 +78,7 @@ export function BillDetailClient({ id }: BillDetailClientProps) {
   const [bill, setBill] = useState<BillDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [language, setLanguage] = useState(() => {
+  const [language] = useState(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("bill-buddy-language") || "en";
     }

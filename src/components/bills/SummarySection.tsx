@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -55,7 +54,7 @@ export function SummarySection({ billId, existingSummary, language: propLanguage
     if (propLanguage && propLanguage !== summaryLanguage) {
       setSummaryLanguage(propLanguage);
     }
-  }, [propLanguage]);
+  }, [propLanguage]); // eslint-disable-line react-hooks/exhaustive-deps -- only re-run when propLanguage changes
 
   // Fallback: read language from localStorage on mount if no prop provided
   useEffect(() => {
@@ -80,7 +79,7 @@ export function SummarySection({ billId, existingSummary, language: propLanguage
       hasAutoTranslated.current = true;
       generateSummary();
     }
-  }, [summaryLanguage, existingSummary]);
+  }, [summaryLanguage, existingSummary]); // eslint-disable-line react-hooks/exhaustive-deps -- guarded by hasAutoTranslated ref
 
   async function generateSummary() {
     setLoading(true);
