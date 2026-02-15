@@ -18,6 +18,7 @@ import {
   ArrowRight,
   Sparkles,
   Mail,
+  Heart,
 } from "lucide-react";
 
 const springIn = {
@@ -292,17 +293,14 @@ export default function HomePage() {
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Link>
             </Button>
-            <p className="mt-4 text-xs text-muted-foreground">
-              Free &amp; open source{" · "}
-              <a
-                href="https://buymeacoffee.com/johnigwe88m"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-primary transition-colors"
-              >
-                Support the project
-              </a>
-            </p>
+            <a
+              href="https://buymeacoffee.com/johnigwe88m"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-flex items-center gap-2 rounded-lg border border-pink-500/30 bg-pink-500/10 px-4 py-2 text-sm font-medium text-pink-400 hover:bg-pink-500/20 transition-colors"
+            >
+              <Heart className="h-4 w-4" /> Support the project
+            </a>
           </div>
         </div>
       </section>

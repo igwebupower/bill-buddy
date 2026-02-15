@@ -132,15 +132,15 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             >
               Terms
             </Link>
-            <a
-              href="https://buymeacoffee.com/johnigwe88m"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
-            >
-              <Heart className="h-3 w-3" /> Support
-            </a>
           </div>
+          <a
+            href="https://buymeacoffee.com/johnigwe88m"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-pink-400 hover:bg-pink-500/10 transition-colors"
+          >
+            <Heart className="h-4 w-4" /> Support BillBrief
+          </a>
         </div>
       </aside>
     </>
