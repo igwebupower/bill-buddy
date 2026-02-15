@@ -27,7 +27,7 @@ export async function generateMetadata({
 
   return {
     title: "Bill Details",
-    description: "View details and AI summary of this UK Parliamentary bill",
+    description: "View details and plain English summary of this UK Parliamentary bill",
   };
 }
 

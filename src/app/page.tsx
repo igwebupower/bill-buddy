@@ -16,7 +16,7 @@ import {
   Bell,
   Share2,
   ArrowRight,
-  Sparkles,
+  FileText,
   Mail,
   Heart,
 } from "lucide-react";
@@ -33,8 +33,8 @@ const stagger = {
 
 const features = [
   {
-    icon: Sparkles,
-    title: "AI Summaries",
+    icon: FileText,
+    title: "Plain English Summaries",
     description:
       "Complex legal language translated into clear, plain English by Claude AI",
   },
@@ -60,7 +60,7 @@ const features = [
 
 const defaultStats = [
   { label: "Bills Tracked", value: 0, suffix: "+" },
-  { label: "AI Summaries", value: 0, suffix: "+" },
+  { label: "Summaries", value: 0, suffix: "+" },
   { label: "Users Tracking", value: 0, suffix: "+" },
 ];
 
@@ -104,7 +104,7 @@ export default function HomePage() {
         const data = await res.json();
         setStats([
           { label: "Bills Tracked", value: data.bills || 0, suffix: "+" },
-          { label: "AI Summaries", value: data.summaries || 0, suffix: "+" },
+          { label: "Summaries", value: data.summaries || 0, suffix: "+" },
           { label: "Users Tracking", value: data.trackers || 0, suffix: "+" },
         ]);
       } catch {
@@ -124,21 +124,17 @@ export default function HomePage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-16">
-      {/* Hero with gradient mesh */}
+      {/* Hero */}
       <motion.section
-        className="relative flex flex-col items-center text-center pt-8 pb-4 overflow-hidden"
+        className="relative flex flex-col items-center text-center pt-8 pb-4"
         initial="initial"
         animate="animate"
         variants={stagger}
       >
-        {/* Background effects */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-mesh opacity-60" />
-        <div className="pointer-events-none absolute inset-0 bg-dot-pattern opacity-30" />
-
-        <motion.div variants={springIn} className="relative mb-6">
+        <motion.div variants={springIn} className="mb-6">
           <Badge
             variant="outline"
-            className="glass px-3 py-1 text-sm border-gradient-from/30 text-primary"
+            className="px-3 py-1 text-sm text-primary"
           >
             UK Parliamentary Bills
           </Badge>
@@ -146,17 +142,17 @@ export default function HomePage() {
 
         <motion.h1
           variants={springIn}
-          className="relative text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl"
+          className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl"
         >
           Legislation,{" "}
-          <span className="text-gradient">simplified</span>
+          <span className="text-primary">simplified</span>
         </motion.h1>
 
         <motion.p
           variants={springIn}
-          className="relative mt-4 max-w-xl text-lg text-muted-foreground"
+          className="mt-4 max-w-xl text-lg text-muted-foreground"
         >
-          AI-powered plain-English summaries of UK Parliamentary bills.
+          Plain-English summaries of UK Parliamentary bills.
           Track legislation, get alerts, and understand how new laws affect you.
         </motion.p>
 
@@ -164,9 +160,9 @@ export default function HomePage() {
         <motion.form
           variants={springIn}
           onSubmit={handleSearch}
-          className="relative mt-8 flex w-full max-w-md gap-2"
+          className="mt-8 flex w-full max-w-md gap-2"
         >
-          <div className="glass relative flex-1 flex items-center rounded-lg transition-all focus-within:shadow-glow">
+          <div className="relative flex-1 flex items-center rounded-lg border border-border bg-card transition-all focus-within:ring-2 focus-within:ring-primary/20">
             <Search className="absolute left-3 h-4 w-4 text-muted-foreground" />
             <input
               type="search"
@@ -183,7 +179,7 @@ export default function HomePage() {
 
         <motion.div
           variants={springIn}
-          className="relative mt-4 flex gap-3 text-sm text-muted-foreground"
+          className="mt-4 flex gap-3 text-sm text-muted-foreground"
         >
           <span>Try:</span>
           {["Renters", "AI", "NHS"].map((term) => (
@@ -212,7 +208,7 @@ export default function HomePage() {
               <AnimatedCounter
                 value={stat.value}
                 suffix={stat.suffix}
-                className="text-2xl font-bold text-gradient font-mono-numbers"
+                className="text-2xl font-bold text-primary font-mono-numbers"
               />
               <p className="text-xs text-muted-foreground mt-1">{stat.label}</p>
             </GlassCard>
@@ -230,8 +226,8 @@ export default function HomePage() {
       >
         {features.map((feature) => (
           <motion.div key={feature.title} variants={springIn}>
-            <GlassCard gradientBorder className="h-full">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-gradient-from/20 to-gradient-via/20 mb-3">
+            <GlassCard className="h-full">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 mb-3">
                 <feature.icon className="h-5 w-5 text-primary" />
               </div>
               <h3 className="font-semibold mb-1">{feature.title}</h3>
@@ -273,35 +269,31 @@ export default function HomePage() {
 
       {/* CTA */}
       <section className="text-center pb-8">
-        <div className="glass relative overflow-hidden rounded-2xl p-8">
-          <div className="pointer-events-none absolute inset-0 bg-gradient-mesh opacity-40" />
-          <div className="pointer-events-none absolute inset-0 bg-dot-pattern opacity-20" />
-          <div className="relative">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-gradient-from via-gradient-via to-gradient-to shadow-glow">
-              <ScrollText className="h-6 w-6 text-white" />
-            </div>
-            <h2 className="text-xl font-semibold mb-2">
-              Stay informed about UK legislation
-            </h2>
-            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-              Track bills through Parliament, get push notifications for stage
-              changes, and share plain-English summaries.
-            </p>
-            <Button asChild size="lg">
-              <Link href="/bills">
-                Browse Bills
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </Link>
-            </Button>
-            <a
-              href="https://buymeacoffee.com/johnigwe88m"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-4 inline-flex items-center gap-2 rounded-lg border border-pink-500/30 bg-pink-500/10 px-4 py-2 text-sm font-medium text-pink-400 hover:bg-pink-500/20 transition-colors"
-            >
-              <Heart className="h-4 w-4" /> Support the project
-            </a>
+        <div className="rounded-2xl border border-border bg-card shadow-sm p-8">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
+            <ScrollText className="h-6 w-6 text-white" />
           </div>
+          <h2 className="text-xl font-semibold mb-2">
+            Stay informed about UK legislation
+          </h2>
+          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+            Track bills through Parliament, get push notifications for stage
+            changes, and share plain-English summaries.
+          </p>
+          <Button asChild size="lg">
+            <Link href="/bills">
+              Browse Bills
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Link>
+          </Button>
+          <a
+            href="https://buymeacoffee.com/johnigwe88m"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg border border-pink-500/30 bg-pink-500/10 px-4 py-2 text-sm font-medium text-pink-600 hover:bg-pink-500/20 transition-colors dark:text-pink-400"
+          >
+            <Heart className="h-4 w-4" /> Support the project
+          </a>
         </div>
       </section>
     </div>

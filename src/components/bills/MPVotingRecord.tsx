@@ -86,7 +86,7 @@ export function MPVotingRecord({ billTitle }: MPVotingRecordProps) {
     return (
       <GlassCard>
         <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-gradient-from/15 to-gradient-via/15">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
             <Vote className="h-3.5 w-3.5 text-primary" />
           </div>
           MP Voting Record
@@ -101,7 +101,7 @@ export function MPVotingRecord({ billTitle }: MPVotingRecordProps) {
   return (
     <GlassCard>
       <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-gradient-from/15 to-gradient-via/15">
+        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
           <Vote className="h-3.5 w-3.5 text-primary" />
         </div>
         MP Voting Record

@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     template: "%s | BillBrief",
   },
   description:
-    "AI-powered plain-English summaries of UK Parliamentary bills. Track legislation, get alerts, and understand how new laws affect you.",
+    "Plain-English summaries of UK Parliamentary bills. Track legislation, get alerts, and understand how new laws affect you.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -35,8 +35,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f0f4ff" },
-    { media: "(prefers-color-scheme: dark)", color: "#1a1d2e" },
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#1f1f1f" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -49,7 +49,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

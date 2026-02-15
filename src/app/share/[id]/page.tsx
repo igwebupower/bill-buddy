@@ -88,7 +88,7 @@ export async function generateMetadata({
 
   const title = `${data.shortTitle} | BillBrief`;
   const description =
-    data.tldr || data.longTitle || "AI-powered summary of a UK Parliamentary bill.";
+    data.tldr || data.longTitle || "Plain English summary of a UK Parliamentary bill.";
 
   return {
     title,
@@ -207,7 +207,7 @@ export default async function SharePage({ params }: SharePageProps) {
               {!data.tldr && !data.overview && (
                 <div className="text-center py-6">
                   <p className="text-sm text-muted-foreground mb-1">
-                    No AI summary has been generated for this bill yet.
+                    No summary has been generated for this bill yet.
                   </p>
                   <p className="text-sm text-muted-foreground">
                     View the full bill page to generate one.
@@ -241,7 +241,7 @@ export default async function SharePage({ params }: SharePageProps) {
             BillBrief
           </Link>
           <p className="text-xs text-muted-foreground text-center">
-            AI-powered plain-English summaries of UK Parliamentary bills
+            Plain-English summaries of UK Parliamentary bills
           </p>
         </div>
       </footer>

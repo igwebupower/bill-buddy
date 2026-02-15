@@ -52,14 +52,14 @@ export function Sidebar({ open, onClose }: SidebarProps) {
       <aside
         data-slot="sidebar"
         className={cn(
-          "fixed top-0 left-0 z-50 flex h-full w-64 flex-col border-r border-glass-border bg-surface-1/80 backdrop-blur-xl transition-transform duration-300 lg:sticky lg:translate-x-0",
+          "fixed top-0 left-0 z-50 flex h-full w-64 flex-col border-r bg-sidebar border-border transition-transform duration-300 lg:sticky lg:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full"
         )}
       >
         {/* Logo */}
-        <div className="flex h-16 items-center justify-between border-b border-glass-border px-5">
+        <div className="flex h-16 items-center justify-between border-b border-border px-5">
           <Link href="/" className="flex items-center gap-2.5" onClick={onClose}>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-gradient-from via-gradient-via to-gradient-to shadow-glow">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
               <ScrollText className="h-4.5 w-4.5 text-white" />
             </div>
             <span className="text-lg font-semibold tracking-tight">
@@ -97,7 +97,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                 {isActive && (
                   <motion.div
                     layoutId="sidebar-active"
-                    className="absolute inset-0 rounded-lg bg-primary/10 shadow-[inset_0_0_12px_oklch(0.6_0.18_240_/_10%)]"
+                    className="absolute inset-0 rounded-lg bg-primary/8"
                     transition={{
                       type: "spring",
                       stiffness: 350,
@@ -113,7 +113,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         </nav>
 
         {/* Footer */}
-        <div className="border-t border-glass-border p-4 space-y-2">
+        <div className="border-t border-border p-4 space-y-2">
           <p className="text-xs text-muted-foreground">
             Data from UK Parliament API
           </p>
@@ -137,7 +137,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             href="https://buymeacoffee.com/johnigwe88m"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-pink-400 hover:bg-pink-500/10 transition-colors"
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-pink-600 hover:bg-pink-500/10 transition-colors dark:text-pink-400"
           >
             <Heart className="h-4 w-4" /> Support BillBrief
           </a>

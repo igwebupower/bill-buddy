@@ -59,7 +59,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
     <>
       <header
         data-slot="topbar"
-        className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-glass-border bg-surface-0/80 px-4 backdrop-blur-xl lg:px-6"
+        className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-card px-4 lg:px-6"
       >
         <button
           onClick={onMenuClick}
@@ -71,11 +71,11 @@ export function TopBar({ onMenuClick }: TopBarProps) {
         {/* Spotlight search trigger */}
         <button
           onClick={() => setOpen(true)}
-          className="glass glass-hover relative flex flex-1 max-w-md items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-all"
+          className="relative flex flex-1 max-w-md items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-muted-foreground transition-all hover:bg-accent"
         >
           <Search className="h-4 w-4" />
           <span>Search bills...</span>
-          <kbd className="ml-auto hidden rounded border border-glass-border bg-surface-2 px-1.5 py-0.5 text-[10px] font-mono-numbers text-muted-foreground sm:inline-block">
+          <kbd className="ml-auto hidden rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-mono-numbers text-muted-foreground sm:inline-block">
             Ctrl K
           </kbd>
         </button>

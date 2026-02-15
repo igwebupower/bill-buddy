@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Sparkles, RefreshCw, AlertCircle, Users, List, Target, Clock } from "lucide-react";
+import { FileText, RefreshCw, AlertCircle, Users, List, Target, Clock } from "lucide-react";
 import { GlassCard } from "@/components/shared/GlassCard";
 
 interface Summary {
@@ -56,8 +56,8 @@ export function SummarySection({ billId, existingSummary }: SummarySectionProps)
       <GlassCard>
         <div className="space-y-4">
           <div className="flex items-center gap-2 text-primary">
-            <Sparkles className="h-5 w-5 animate-pulse" />
-            <span className="text-sm font-medium">Generating AI summary...</span>
+            <FileText className="h-5 w-5 animate-pulse" />
+            <span className="text-sm font-medium">Generating summary...</span>
           </div>
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-5/6" />
@@ -72,13 +72,13 @@ export function SummarySection({ billId, existingSummary }: SummarySectionProps)
   if (!summary) {
     return (
       <GlassCard className="text-center">
-        <Sparkles className="h-10 w-10 text-primary mx-auto mb-3" />
+        <FileText className="h-10 w-10 text-primary mx-auto mb-3" />
         <h3 className="font-semibold mb-1">No summary available yet</h3>
         <p className="text-sm text-muted-foreground mb-4">
-          Generate a plain-English AI summary of this bill
+          Generate a plain-English summary of this bill
         </p>
         <Button onClick={generateSummary}>
-          <Sparkles className="h-4 w-4 mr-2" />
+          <FileText className="h-4 w-4 mr-2" />
           Generate Summary
         </Button>
         {error && (
@@ -101,11 +101,11 @@ export function SummarySection({ billId, existingSummary }: SummarySectionProps)
 
   return (
     <div className="space-y-4">
-      {/* TLDR with gradient left accent */}
-      <div className="glass relative overflow-hidden rounded-xl p-4">
-        <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-gradient-from via-gradient-via to-gradient-to" />
+      {/* TLDR with solid left accent */}
+      <div className="relative overflow-hidden rounded-lg border border-border bg-card p-4">
+        <div className="absolute left-0 top-0 h-full w-1 bg-primary" />
         <div className="flex items-start gap-2 pl-3">
-          <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+          <FileText className="h-4 w-4 text-primary mt-0.5 shrink-0" />
           <div>
             <p className="text-xs font-medium text-primary mb-1">TL;DR</p>
             <p className="text-sm font-medium">{summary.tldr}</p>
@@ -157,7 +157,7 @@ export function SummarySection({ billId, existingSummary }: SummarySectionProps)
           <ul className="space-y-3">
             {keyChanges.map((change, i) => (
               <li key={i} className="flex gap-3">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-gradient-from to-gradient-via text-xs font-medium text-white">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-medium text-white">
                   {i + 1}
                 </span>
                 <p className="text-sm leading-relaxed pt-0.5">{change}</p>

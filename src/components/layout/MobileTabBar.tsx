@@ -20,7 +20,7 @@ export function MobileTabBar() {
   return (
     <nav
       data-slot="mobile-tab-bar"
-      className="fixed bottom-0 left-0 right-0 z-40 border-t border-glass-border bg-surface-0/90 backdrop-blur-xl lg:hidden"
+      className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card lg:hidden"
     >
       <div className="flex items-center justify-around">
         {tabs.map((tab) => {
@@ -41,7 +41,7 @@ export function MobileTabBar() {
               {isActive && (
                 <motion.div
                   layoutId="tab-glow"
-                  className="absolute -top-px left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full bg-gradient-to-r from-gradient-from via-gradient-via to-gradient-to"
+                  className="absolute -top-px left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full bg-primary"
                   transition={{
                     type: "spring",
                     stiffness: 400,

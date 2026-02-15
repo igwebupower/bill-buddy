@@ -157,7 +157,7 @@ export function MPPageClient() {
             <img
               src={mp.thumbnailUrl}
               alt={mp.name}
-              className="h-16 w-16 rounded-full object-cover ring-2 ring-glass-border"
+              className="h-16 w-16 rounded-full object-cover ring-2 ring-border"
             />
             <div className="min-w-0">
               <p className="text-lg font-semibold truncate">{mp.name}</p>

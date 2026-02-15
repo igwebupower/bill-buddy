@@ -12,7 +12,7 @@ import { GlassCard } from "@/components/shared/GlassCard";
 
 export function SettingsClient() {
   const deviceId = useDeviceId();
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [notificationPermission, setNotificationPermission] = useState<
     "default" | "granted" | "denied"
@@ -211,7 +211,7 @@ export function SettingsClient() {
       {/* Appearance */}
       <GlassCard className="space-y-4">
         <h2 className="text-sm font-semibold flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-gradient-from/15 to-gradient-via/15">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
             {darkMode ? (
               <Moon className="h-3.5 w-3.5 text-primary" />
             ) : (
@@ -236,7 +236,7 @@ export function SettingsClient() {
       {/* Notifications */}
       <GlassCard className="space-y-4">
         <h2 className="text-sm font-semibold flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-gradient-from/15 to-gradient-via/15">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
             <Bell className="h-3.5 w-3.5 text-primary" />
           </div>
           Notifications
@@ -283,7 +283,7 @@ export function SettingsClient() {
       {/* Email Alerts */}
       <GlassCard className="space-y-4">
         <h2 className="text-sm font-semibold flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-gradient-from/15 to-gradient-via/15">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
             <Mail className="h-3.5 w-3.5 text-primary" />
           </div>
           Email Alerts
@@ -330,7 +330,7 @@ export function SettingsClient() {
       {/* Data */}
       <GlassCard className="space-y-4">
         <h2 className="text-sm font-semibold flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-gradient-from/15 to-gradient-via/15">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
             <Trash2 className="h-3.5 w-3.5 text-primary" />
           </div>
           Data
@@ -361,7 +361,7 @@ export function SettingsClient() {
       {/* Support */}
       <GlassCard className="space-y-4">
         <h2 className="text-sm font-semibold flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-gradient-from/15 to-gradient-via/15">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
             <Heart className="h-3.5 w-3.5 text-primary" />
           </div>
           Support BillBrief
