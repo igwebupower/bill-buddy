@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { GlassCard } from "@/components/shared/GlassCard";
 import { useDeviceId } from "@/hooks/useDeviceId";
 import { getHouseColor } from "@/lib/parliament/client";
 import { cn } from "@/lib/utils";
@@ -14,6 +16,9 @@ import {
   ScrollText,
   Bell,
   Trash2,
+  Mail,
+  X,
+  Pencil,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -38,6 +43,13 @@ export function TrackedBillsClient() {
   const [items, setItems] = useState<TrackedItem[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Email state
+  const [savedEmail, setSavedEmail] = useState<string | null>(null);
+  const [emailInput, setEmailInput] = useState("");
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [bannerDismissed, setBannerDismissed] = useState(false);
+  const [editingEmail, setEditingEmail] = useState(false);
+
   useEffect(() => {
     if (!deviceId) return;
 
@@ -57,6 +69,66 @@ export function TrackedBillsClient() {
 
     load();
   }, [deviceId]);
+
+  // Fetch saved email
+  useEffect(() => {
+    if (!deviceId) return;
+
+    async function loadEmail() {
+      try {
+        const res = await fetch("/api/device-email", {
+          headers: { "X-Device-ID": deviceId! },
+        });
+        const data = await res.json();
+        if (data.email) {
+          setSavedEmail(data.email);
+        }
+      } catch {
+        // silently fail
+      }
+    }
+
+    loadEmail();
+
+    const dismissed = localStorage.getItem("bill-buddy-email-banner-dismissed");
+    if (dismissed === "true") setBannerDismissed(true);
+  }, [deviceId]);
+
+  async function saveEmail() {
+    if (!deviceId || !emailInput.trim()) return;
+
+    setEmailLoading(true);
+    try {
+      const res = await fetch("/api/device-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Device-ID": deviceId,
+        },
+        body: JSON.stringify({ email: emailInput.trim() }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        toast.error(data.error || "Failed to save email");
+        return;
+      }
+
+      setSavedEmail(emailInput.trim());
+      setEmailInput("");
+      setEditingEmail(false);
+      toast("Email saved — you'll receive stage-change alerts");
+    } catch {
+      toast.error("Failed to save email");
+    } finally {
+      setEmailLoading(false);
+    }
+  }
+
+  function dismissBanner() {
+    setBannerDismissed(true);
+    localStorage.setItem("bill-buddy-email-banner-dismissed", "true");
+  }
 
   async function untrack(billId: string) {
     if (!deviceId) return;
@@ -103,6 +175,105 @@ export function TrackedBillsClient() {
 
   return (
     <div className="space-y-3">
+      {/* Email alert banner */}
+      {savedEmail && !editingEmail ? (
+        <GlassCard className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground min-w-0">
+            <Mail className="h-4 w-4 shrink-0 text-primary" />
+            <span className="truncate">
+              Email alerts: <span className="text-foreground">{savedEmail}</span>
+            </span>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="shrink-0"
+            onClick={() => {
+              setEmailInput(savedEmail);
+              setEditingEmail(true);
+            }}
+          >
+            <Pencil className="h-3.5 w-3.5 mr-1.5" />
+            Change
+          </Button>
+        </GlassCard>
+      ) : !bannerDismissed && !savedEmail ? (
+        <GlassCard className="space-y-3">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-gradient-from/15 to-gradient-via/15">
+                <Mail className="h-3.5 w-3.5 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold">Get email alerts</h3>
+                <p className="text-xs text-muted-foreground">
+                  Receive an email when your tracked bills change stage
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 shrink-0 text-muted-foreground"
+              onClick={dismissBanner}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="flex gap-2">
+            <Input
+              type="email"
+              placeholder="your@email.com"
+              value={emailInput}
+              onChange={(e) => setEmailInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && saveEmail()}
+            />
+            <Button
+              size="sm"
+              disabled={emailLoading || !emailInput.trim()}
+              onClick={saveEmail}
+            >
+              {emailLoading ? "Saving..." : "Save"}
+            </Button>
+          </div>
+        </GlassCard>
+      ) : editingEmail ? (
+        <GlassCard className="space-y-3">
+          <div className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-gradient-from/15 to-gradient-via/15">
+              <Mail className="h-3.5 w-3.5 text-primary" />
+            </div>
+            <h3 className="text-sm font-semibold">Update email</h3>
+          </div>
+          <div className="flex gap-2">
+            <Input
+              type="email"
+              placeholder="your@email.com"
+              value={emailInput}
+              onChange={(e) => setEmailInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && saveEmail()}
+            />
+            <Button
+              size="sm"
+              disabled={emailLoading || !emailInput.trim()}
+              onClick={saveEmail}
+            >
+              {emailLoading ? "Saving..." : "Save"}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setEditingEmail(false);
+                setEmailInput("");
+              }}
+            >
+              Cancel
+            </Button>
+          </div>
+        </GlassCard>
+      ) : null}
+
       {items.map((item) => (
         <div
           key={item.id}

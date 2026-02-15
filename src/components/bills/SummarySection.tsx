@@ -1,14 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Sparkles, RefreshCw, AlertCircle, Users, List, Target, Clock, Globe } from "lucide-react";
+import { Sparkles, RefreshCw, AlertCircle, Users, List, Target, Clock } from "lucide-react";
 import { GlassCard } from "@/components/shared/GlassCard";
-import { useLanguage } from "@/hooks/useLanguage";
 
 interface Summary {
   overview: string;
@@ -28,57 +26,6 @@ export function SummarySection({ billId, existingSummary }: SummarySectionProps)
   const [summary, setSummary] = useState<Summary | null>(existingSummary || null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const { language, languageName } = useLanguage();
-  const [translatedSummary, setTranslatedSummary] = useState<Summary | null>(null);
-  const [translating, setTranslating] = useState(false);
-  const [translateError, setTranslateError] = useState<string | null>(null);
-
-  // Fetch translation when language changes
-  useEffect(() => {
-    if (language === "en" || !summary) {
-      setTranslatedSummary(null);
-      setTranslateError(null);
-      return;
-    }
-
-    let cancelled = false;
-    setTranslating(true);
-    setTranslateError(null);
-
-    fetch(`/api/summaries/${billId}/translate`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ language }),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to translate summary");
-        return res.json();
-      })
-      .then((data) => {
-        if (!cancelled) {
-          setTranslatedSummary(data.summary);
-        }
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          setTranslateError(
-            err instanceof Error ? err.message : "Translation failed"
-          );
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setTranslating(false);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [summary, language, billId]);
-
-  const displaySummary = (language !== "en" && translatedSummary) || summary;
 
   async function generateSummary() {
     setLoading(true);
@@ -144,53 +91,16 @@ export function SummarySection({ billId, existingSummary }: SummarySectionProps)
     );
   }
 
-  // Safe to assert non-null: the `if (!summary)` guard above ensures summary exists,
-  // and displaySummary falls back to summary when no translation is available
-  const shown = displaySummary!;
+  const keyChanges: string[] = Array.isArray(summary.keyChanges)
+    ? summary.keyChanges
+    : JSON.parse(summary.keyChanges as string);
 
-  const keyChanges: string[] = Array.isArray(shown.keyChanges)
-    ? shown.keyChanges
-    : JSON.parse(shown.keyChanges as string);
-
-  const impacts: Array<{ group: string; impact: string }> = Array.isArray(shown.impacts)
-    ? shown.impacts
-    : JSON.parse(shown.impacts as string);
+  const impacts: Array<{ group: string; impact: string }> = Array.isArray(summary.impacts)
+    ? summary.impacts
+    : JSON.parse(summary.impacts as string);
 
   return (
     <div className="space-y-4">
-      {/* Translation loading state */}
-      {translating && (
-        <GlassCard>
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 text-primary">
-              <Globe className="h-5 w-5 animate-pulse" />
-              <span className="text-sm font-medium">
-                Translating to {languageName}...
-              </span>
-            </div>
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-5/6" />
-            <Skeleton className="h-4 w-4/6" />
-          </div>
-        </GlassCard>
-      )}
-
-      {/* Translation error */}
-      {translateError && (
-        <p className="text-sm text-destructive flex items-center gap-1">
-          <AlertCircle className="h-4 w-4" />
-          {translateError}
-        </p>
-      )}
-
-      {/* Language badge */}
-      {language !== "en" && translatedSummary && !translating && (
-        <Badge variant="secondary" className="gap-1.5">
-          <Globe className="h-3 w-3" />
-          {languageName}
-        </Badge>
-      )}
-
       {/* TLDR with gradient left accent */}
       <div className="glass relative overflow-hidden rounded-xl p-4">
         <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-gradient-from via-gradient-via to-gradient-to" />
@@ -198,7 +108,7 @@ export function SummarySection({ billId, existingSummary }: SummarySectionProps)
           <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
           <div>
             <p className="text-xs font-medium text-primary mb-1">TL;DR</p>
-            <p className="text-sm font-medium">{shown.tldr}</p>
+            <p className="text-sm font-medium">{summary.tldr}</p>
           </div>
         </div>
       </div>
@@ -230,7 +140,7 @@ export function SummarySection({ billId, existingSummary }: SummarySectionProps)
               What this bill does
             </h4>
             <p className="text-sm leading-relaxed whitespace-pre-line">
-              {shown.overview}
+              {summary.overview}
             </p>
           </div>
           <div>
@@ -238,7 +148,7 @@ export function SummarySection({ billId, existingSummary }: SummarySectionProps)
               Why it was introduced
             </h4>
             <p className="text-sm leading-relaxed whitespace-pre-line">
-              {shown.purpose}
+              {summary.purpose}
             </p>
           </div>
         </TabsContent>
@@ -273,7 +183,7 @@ export function SummarySection({ billId, existingSummary }: SummarySectionProps)
 
         <TabsContent value="implementation" className="mt-4">
           <p className="text-sm leading-relaxed whitespace-pre-line">
-            {shown.implementation || "Implementation timeline not yet specified."}
+            {summary.implementation || "Implementation timeline not yet specified."}
           </p>
         </TabsContent>
       </Tabs>

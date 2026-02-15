@@ -3,36 +3,44 @@
 import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Bell, Moon, Sun, Globe, Trash2, AlertCircle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Bell, Moon, Sun, Trash2, AlertCircle, Mail } from "lucide-react";
 import { useDeviceId } from "@/hooks/useDeviceId";
 import { toast } from "sonner";
 import { GlassCard } from "@/components/shared/GlassCard";
 
-const languages = [
-  { value: "en", label: "English" },
-  { value: "cy", label: "Cymraeg (Welsh)" },
-  { value: "ur", label: "Urdu" },
-  { value: "pl", label: "Polski (Polish)" },
-  { value: "ar", label: "Arabic" },
-];
-
 export function SettingsClient() {
   const deviceId = useDeviceId();
   const [darkMode, setDarkMode] = useState(true);
-  const [language, setLanguage] = useState("en");
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [notificationPermission, setNotificationPermission] = useState<
     "default" | "granted" | "denied"
   >("default");
   const [vapidAvailable, setVapidAvailable] = useState(false);
+  const [savedEmail, setSavedEmail] = useState<string | null>(null);
+  const [emailInput, setEmailInput] = useState("");
+  const [emailLoading, setEmailLoading] = useState(false);
+
+  // Fetch saved email
+  useEffect(() => {
+    if (!deviceId) return;
+    async function loadEmail() {
+      try {
+        const res = await fetch("/api/device-email", {
+          headers: { "X-Device-ID": deviceId! },
+        });
+        const data = await res.json();
+        if (data.email) {
+          setSavedEmail(data.email);
+          setEmailInput(data.email);
+        }
+      } catch {
+        // silently fail
+      }
+    }
+    loadEmail();
+  }, [deviceId]);
 
   useEffect(() => {
     const isDark = document.documentElement.classList.contains("dark");
@@ -45,9 +53,6 @@ export function SettingsClient() {
       setNotificationsEnabled(Notification.permission === "granted");
     }
 
-    const savedLang = localStorage.getItem("bill-buddy-language");
-    if (savedLang) setLanguage(savedLang);
-
     setVapidAvailable(!!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY);
   }, []);
 
@@ -59,15 +64,6 @@ export function SettingsClient() {
       document.documentElement.classList.remove("dark");
     }
     localStorage.setItem("bill-buddy-theme", dark ? "dark" : "light");
-  }
-
-  function changeLanguage(lang: string) {
-    setLanguage(lang);
-    localStorage.setItem("bill-buddy-language", lang);
-    window.dispatchEvent(
-      new CustomEvent("bill-buddy-language-change", { detail: lang })
-    );
-    toast("Language preference saved");
   }
 
   async function enableNotifications() {
@@ -149,10 +145,58 @@ export function SettingsClient() {
     }
   }
 
+  async function saveEmail() {
+    if (!deviceId || !emailInput.trim()) return;
+    setEmailLoading(true);
+    try {
+      const res = await fetch("/api/device-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Device-ID": deviceId,
+        },
+        body: JSON.stringify({ email: emailInput.trim() }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        toast.error(data.error || "Failed to save email");
+        return;
+      }
+      setSavedEmail(emailInput.trim());
+      toast("Email saved — you'll receive stage-change alerts");
+    } catch {
+      toast.error("Failed to save email");
+    } finally {
+      setEmailLoading(false);
+    }
+  }
+
+  async function removeEmail() {
+    if (!deviceId) return;
+    setEmailLoading(true);
+    try {
+      await fetch("/api/device-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Device-ID": deviceId,
+        },
+        body: JSON.stringify({ email: null }),
+      });
+      setSavedEmail(null);
+      setEmailInput("");
+      localStorage.removeItem("bill-buddy-email-banner-dismissed");
+      toast("Email removed — alerts disabled");
+    } catch {
+      toast.error("Failed to remove email");
+    } finally {
+      setEmailLoading(false);
+    }
+  }
+
   function clearAllData() {
     const keys = [
       "bill-buddy-device-id",
-      "bill-buddy-language",
       "bill-buddy-theme",
       "bill-buddy-postcode",
       "bill-buddy-cookie-consent",
@@ -187,37 +231,6 @@ export function SettingsClient() {
             onCheckedChange={toggleTheme}
           />
         </div>
-      </GlassCard>
-
-      {/* Language */}
-      <GlassCard className="space-y-4">
-        <h2 className="text-sm font-semibold flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-gradient-from/15 to-gradient-via/15">
-            <Globe className="h-3.5 w-3.5 text-primary" />
-          </div>
-          Language
-        </h2>
-
-        <div className="flex items-center justify-between">
-          <Label className="text-sm">Preferred summary language</Label>
-          <Select value={language} onValueChange={changeLanguage}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {languages.map((lang) => (
-                <SelectItem key={lang.value} value={lang.value}>
-                  {lang.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <p className="text-xs text-muted-foreground">
-          AI summaries will be translated to your preferred language when
-          available.
-        </p>
       </GlassCard>
 
       {/* Notifications */}
@@ -265,6 +278,53 @@ export function SettingsClient() {
             Push notifications are not yet configured for this deployment.
           </p>
         )}
+      </GlassCard>
+
+      {/* Email Alerts */}
+      <GlassCard className="space-y-4">
+        <h2 className="text-sm font-semibold flex items-center gap-2">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-gradient-from/15 to-gradient-via/15">
+            <Mail className="h-3.5 w-3.5 text-primary" />
+          </div>
+          Email Alerts
+        </h2>
+
+        <p className="text-xs text-muted-foreground">
+          Optionally add your email to receive alerts when your tracked bills
+          change stage. No account needed.
+        </p>
+
+        <div className="flex gap-2">
+          <Input
+            type="email"
+            placeholder="your@email.com"
+            value={emailInput}
+            onChange={(e) => setEmailInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && saveEmail()}
+          />
+          <Button
+            size="sm"
+            disabled={emailLoading || !emailInput.trim()}
+            onClick={saveEmail}
+          >
+            {emailLoading
+              ? "Saving..."
+              : savedEmail
+                ? "Update"
+                : "Save"}
+          </Button>
+          {savedEmail && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-destructive hover:text-destructive"
+              disabled={emailLoading}
+              onClick={removeEmail}
+            >
+              Remove
+            </Button>
+          )}
+        </div>
       </GlassCard>
 
       {/* Data */}

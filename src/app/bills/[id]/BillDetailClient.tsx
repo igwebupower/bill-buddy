@@ -11,6 +11,7 @@ import { StageTimeline } from "@/components/bills/StageTimeline";
 import { TrackButton } from "@/components/bills/TrackButton";
 import { ShareDialog } from "@/components/bills/ShareDialog";
 import { ContactMP } from "@/components/bills/ContactMP";
+import { MPVotingRecord } from "@/components/bills/MPVotingRecord";
 import { GlassCard } from "@/components/shared/GlassCard";
 import { getHouseColor } from "@/lib/parliament/client";
 import { cn } from "@/lib/utils";
@@ -283,6 +284,9 @@ export function BillDetailClient({ id }: BillDetailClientProps) {
 
           {/* Contact Your MP */}
           <ContactMP billTitle={bill.shortTitle} />
+
+          {/* MP Voting Record */}
+          <MPVotingRecord billTitle={bill.shortTitle} />
 
           {/* Meta */}
           <GlassCard>

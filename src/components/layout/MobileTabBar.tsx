@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, ScrollText, Tags, BookmarkCheck, Settings } from "lucide-react";
+import { Home, ScrollText, Tags, BookmarkCheck, Landmark } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
@@ -11,7 +11,7 @@ const tabs = [
   { href: "/bills", label: "Bills", icon: ScrollText },
   { href: "/topics", label: "Topics", icon: Tags },
   { href: "/tracked", label: "Tracked", icon: BookmarkCheck },
-  { href: "/settings", label: "More", icon: Settings },
+  { href: "/mp", label: "Your MP", icon: Landmark },
 ];
 
 export function MobileTabBar() {

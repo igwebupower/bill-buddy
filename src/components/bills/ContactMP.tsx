@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { GlassCard } from "@/components/shared/GlassCard";
+import { usePostcode } from "@/hooks/usePostcode";
 import {
   Mail,
   Search,
@@ -29,18 +30,16 @@ interface ContactMPProps {
   billTitle: string;
 }
 
-const POSTCODE_KEY = "bill-buddy-postcode";
-
 export function ContactMP({ billTitle }: ContactMPProps) {
+  const { postcode: savedPostcode, setPostcode: savePostcode } = usePostcode();
   const [postcode, setPostcode] = useState("");
   const [mp, setMp] = useState<MPInfo | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem(POSTCODE_KEY);
-    if (saved) setPostcode(saved);
-  }, []);
+    if (savedPostcode) setPostcode(savedPostcode);
+  }, [savedPostcode]);
 
   async function lookupMP() {
     const trimmed = postcode.trim();
@@ -61,7 +60,7 @@ export function ContactMP({ billTitle }: ContactMPProps) {
       }
 
       setMp(data);
-      localStorage.setItem(POSTCODE_KEY, trimmed);
+      savePostcode(trimmed);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to find MP");
     } finally {

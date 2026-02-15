@@ -125,6 +125,7 @@ model DeviceProfile {
   deviceId        String   @unique // localStorage UUID
   preferredLang   String   @default("en")
   theme           String   @default("dark")
+  email           String?  // optional email for stage-change alerts
 
   trackedBills    TrackedBill[]
   pushSubscriptions PushSubscription[]

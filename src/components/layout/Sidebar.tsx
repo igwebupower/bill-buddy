@@ -8,6 +8,7 @@ import {
   BookmarkCheck,
   BarChart3,
   Tags,
+  Landmark,
   Settings,
   X,
 } from "lucide-react";
@@ -18,6 +19,7 @@ const navItems = [
   { href: "/", label: "Home", icon: Home },
   { href: "/bills", label: "Bills", icon: ScrollText },
   { href: "/topics", label: "Topics", icon: Tags },
+  { href: "/mp", label: "Your MP", icon: Landmark },
   { href: "/timeline", label: "Timeline", icon: BarChart3 },
   { href: "/tracked", label: "Tracked", icon: BookmarkCheck },
   { href: "/settings", label: "Settings", icon: Settings },

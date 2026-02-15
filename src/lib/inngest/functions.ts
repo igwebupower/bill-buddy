@@ -2,6 +2,7 @@ import { inngest } from "./client";
 import { prisma } from "@/lib/db";
 import { getBills, getBillById, getBillStages, getBillPublications } from "@/lib/parliament/client";
 import { generateBillSummary } from "@/lib/ai/summarize";
+import { sendEmail } from "@/lib/email";
 
 // ─── Sync Bills ─────────────────────────────────────────────────────────────────
 
@@ -296,13 +297,58 @@ export const checkStageChanges = inngest.createFunction(
               },
             });
 
-            return true;
+            return { changed: true, newStage, isAct: fresh.isAct };
           }
-          return false;
+          return { changed: false, newStage: null, isAct: false };
         }
       );
 
-      if (change) changesDetected++;
+      if (change.changed) {
+        changesDetected++;
+
+        // Send email alerts to subscribers
+        await step.run(`email-${bill.parliamentId}`, async () => {
+          const subscribers = await prisma.trackedBill.findMany({
+            where: {
+              billId: bill.id,
+              notifyStageChange: true,
+              device: { email: { not: null } },
+            },
+            select: { device: { select: { email: true } } },
+          });
+
+          const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://billbuddy.uk";
+          const billUrl = `${appUrl}/bills/${bill.parliamentId}`;
+
+          for (const sub of subscribers) {
+            if (!sub.device.email) continue;
+
+            const subject = change.isAct
+              ? `${bill.shortTitle} — Royal Assent`
+              : `${bill.shortTitle} — Stage Change`;
+
+            const html = `
+              <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px;">
+                <h2 style="margin: 0 0 8px;">${bill.shortTitle}</h2>
+                <p style="color: #666; margin: 0 0 16px;">
+                  ${change.isAct
+                    ? "Has received Royal Assent and is now an Act of Parliament."
+                    : `Has moved to: <strong>${change.newStage}</strong>`}
+                </p>
+                <a href="${billUrl}" style="display: inline-block; background: #2563eb; color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-size: 14px;">
+                  View Bill
+                </a>
+                <p style="color: #999; font-size: 12px; margin-top: 24px;">
+                  You're receiving this because you tracked this bill on Bill Buddy.
+                  To stop email alerts, remove your email in Settings.
+                </p>
+              </div>
+            `;
+
+            await sendEmail({ to: sub.device.email, subject, html });
+          }
+        });
+      }
     }
 
     return { checked: trackedBills.length, changes: changesDetected };

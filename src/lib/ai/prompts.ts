@@ -60,21 +60,3 @@ Respond with JSON:
 
 Return ONLY valid JSON.`;
 }
-
-export function translatePrompt(
-  summary: {
-    overview: string;
-    purpose: string;
-    keyChanges: string[];
-    impacts: Array<{ group: string; impact: string }>;
-    implementation: string;
-    tldr: string;
-  },
-  targetLanguage: string
-): string {
-  return `Translate this UK Parliamentary bill summary into ${targetLanguage}. Maintain the same JSON structure and keep it natural-sounding in the target language.
-
-${JSON.stringify(summary, null, 2)}
-
-Return ONLY valid JSON with the same structure, all text fields translated to ${targetLanguage}.`;
-}

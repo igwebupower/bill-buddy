@@ -15,9 +15,9 @@ import {
   ScrollText,
   Bell,
   Share2,
-  Globe,
   ArrowRight,
   Sparkles,
+  Mail,
 } from "lucide-react";
 
 const springIn = {
@@ -50,17 +50,17 @@ const features = [
       "Generate shareable summary cards and PDFs for social media or research",
   },
   {
-    icon: Globe,
-    title: "Multilingual",
+    icon: Mail,
+    title: "Email Alerts",
     description:
-      "Read summaries in Welsh, Urdu, Polish, Arabic and more",
+      "Get email notifications when your tracked bills change stage",
   },
 ];
 
 const defaultStats = [
   { label: "Bills Tracked", value: 0, suffix: "+" },
   { label: "AI Summaries", value: 0, suffix: "+" },
-  { label: "Languages", value: 5 },
+  { label: "Users Tracking", value: 0, suffix: "+" },
 ];
 
 interface FeaturedBill {
@@ -104,7 +104,7 @@ export default function HomePage() {
         setStats([
           { label: "Bills Tracked", value: data.bills || 0, suffix: "+" },
           { label: "AI Summaries", value: data.summaries || 0, suffix: "+" },
-          { label: "Languages", value: data.languages || 5 },
+          { label: "Users Tracking", value: data.trackers || 0, suffix: "+" },
         ]);
       } catch {
         // keep defaults
