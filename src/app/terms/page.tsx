@@ -4,7 +4,7 @@ import { GlassCard } from "@/components/shared/GlassCard";
 
 export const metadata: Metadata = {
   title: "Terms & Conditions",
-  description: "Terms of use for Bill Buddy",
+  description: "Terms of use for BillBrief",
 };
 
 export default function TermsPage() {
@@ -22,7 +22,7 @@ export default function TermsPage() {
       <GlassCard className="space-y-4">
         <h2 className="text-sm font-semibold">Acceptance of Terms</h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          By accessing and using Bill Buddy, you agree to be bound by these
+          By accessing and using BillBrief, you agree to be bound by these
           Terms &amp; Conditions. If you do not agree with any part of these
           terms, please do not use the service.
         </p>
@@ -31,7 +31,7 @@ export default function TermsPage() {
       <GlassCard className="space-y-4">
         <h2 className="text-sm font-semibold">Description of Service</h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          Bill Buddy is a free, open-source web application that provides
+          BillBrief is a free, open-source web application that provides
           AI-generated plain-English summaries of UK Parliamentary bills. The
           service allows you to browse bills, track legislation, receive push
           notifications for stage changes, and contact your Member of Parliament.
@@ -63,7 +63,7 @@ export default function TermsPage() {
         <p className="text-sm text-muted-foreground leading-relaxed">
           Bill data is sourced from the UK Parliament&apos;s public APIs. While
           we strive to keep information up to date, there may be delays between
-          when Parliament publishes updates and when they appear in Bill Buddy.
+          when Parliament publishes updates and when they appear in BillBrief.
           We do not guarantee the accuracy, completeness, or timeliness of the
           data displayed.
         </p>
@@ -82,7 +82,7 @@ export default function TermsPage() {
       <GlassCard className="space-y-4">
         <h2 className="text-sm font-semibold">No Account Required</h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          Bill Buddy does not require account registration. Features such as
+          BillBrief does not require account registration. Features such as
           bill tracking and push notifications use an anonymous device ID stored
           in your browser. You can clear this data at any time through your
           browser settings.
@@ -113,7 +113,7 @@ export default function TermsPage() {
       <GlassCard className="space-y-4">
         <h2 className="text-sm font-semibold">Limitation of Liability</h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          Bill Buddy is provided &ldquo;as is&rdquo; without warranty of any
+          BillBrief is provided &ldquo;as is&rdquo; without warranty of any
           kind. To the fullest extent permitted by law, we disclaim all
           liability for any damages arising from your use of the service,
           including reliance on AI-generated summaries or parliamentary data.

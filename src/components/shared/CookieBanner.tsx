@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Cookie } from "lucide-react";
 
-const CONSENT_KEY = "bill-buddy-cookie-consent";
+const CONSENT_KEY = "billbrief-cookie-consent";
 
 export function CookieBanner() {
   const [visible, setVisible] = useState(false);

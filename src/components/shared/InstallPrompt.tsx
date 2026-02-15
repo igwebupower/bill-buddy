@@ -41,7 +41,7 @@ export function InstallPrompt() {
       <div className="flex items-start gap-3">
         <Download className="h-5 w-5 text-primary mt-0.5 shrink-0" />
         <div className="flex-1">
-          <p className="text-sm font-medium">Install Bill Buddy</p>
+          <p className="text-sm font-medium">Install BillBrief</p>
           <p className="text-xs text-muted-foreground mt-0.5">
             Add to your home screen for quick access and offline support
           </p>

@@ -4,7 +4,7 @@ import { GlassCard } from "@/components/shared/GlassCard";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
-  description: "How Bill Buddy handles your data",
+  description: "How BillBrief handles your data",
 };
 
 export default function PrivacyPage() {
@@ -20,7 +20,7 @@ export default function PrivacyPage() {
       <GlassCard className="space-y-4">
         <h2 className="text-sm font-semibold">Overview</h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          Bill Buddy is a free, open-source tool that helps you understand UK
+          BillBrief is a free, open-source tool that helps you understand UK
           Parliamentary bills. We are committed to protecting your privacy and
           collect only the minimum data needed to provide the service.
         </p>

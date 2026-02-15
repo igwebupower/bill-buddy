@@ -317,7 +317,7 @@ export const checkStageChanges = inngest.createFunction(
             select: { device: { select: { email: true } } },
           });
 
-          const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://billbuddy.uk";
+          const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://billbrief.co.uk";
           const billUrl = `${appUrl}/bills/${bill.parliamentId}`;
 
           for (const sub of subscribers) {
@@ -339,7 +339,7 @@ export const checkStageChanges = inngest.createFunction(
                   View Bill
                 </a>
                 <p style="color: #999; font-size: 12px; margin-top: 24px;">
-                  You're receiving this because you tracked this bill on Bill Buddy.
+                  You're receiving this because you tracked this bill on BillBrief.
                   To stop email alerts, remove your email in Settings.
                 </p>
               </div>

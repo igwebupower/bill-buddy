@@ -63,7 +63,7 @@ export function SettingsClient() {
     } else {
       document.documentElement.classList.remove("dark");
     }
-    localStorage.setItem("bill-buddy-theme", dark ? "dark" : "light");
+    localStorage.setItem("billbrief-theme", dark ? "dark" : "light");
   }
 
   async function enableNotifications() {
@@ -185,7 +185,7 @@ export function SettingsClient() {
       });
       setSavedEmail(null);
       setEmailInput("");
-      localStorage.removeItem("bill-buddy-email-banner-dismissed");
+      localStorage.removeItem("billbrief-email-banner-dismissed");
       toast("Email removed — alerts disabled");
     } catch {
       toast.error("Failed to remove email");
@@ -196,10 +196,10 @@ export function SettingsClient() {
 
   function clearAllData() {
     const keys = [
-      "bill-buddy-device-id",
-      "bill-buddy-theme",
-      "bill-buddy-postcode",
-      "bill-buddy-cookie-consent",
+      "billbrief-device-id",
+      "billbrief-theme",
+      "billbrief-postcode",
+      "billbrief-cookie-consent",
     ];
     keys.forEach((key) => localStorage.removeItem(key));
     toast("All local data cleared. Reloading...");
@@ -337,7 +337,7 @@ export function SettingsClient() {
         </h2>
 
         <p className="text-xs text-muted-foreground">
-          Bill Buddy uses a device ID stored in your browser to manage tracked
+          BillBrief uses a device ID stored in your browser to manage tracked
           bills. No account or personal information is required.
         </p>
 

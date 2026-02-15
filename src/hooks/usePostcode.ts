@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 
-const POSTCODE_KEY = "bill-buddy-postcode";
-const POSTCODE_EVENT = "bill-buddy-postcode-changed";
+const POSTCODE_KEY = "billbrief-postcode";
+const POSTCODE_EVENT = "billbrief-postcode-changed";
 
 export function usePostcode() {
   const [postcode, setPostcodeState] = useState<string | null>(null);

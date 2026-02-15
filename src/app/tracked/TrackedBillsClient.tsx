@@ -90,7 +90,7 @@ export function TrackedBillsClient() {
 
     loadEmail();
 
-    const dismissed = localStorage.getItem("bill-buddy-email-banner-dismissed");
+    const dismissed = localStorage.getItem("billbrief-email-banner-dismissed");
     if (dismissed === "true") setBannerDismissed(true);
   }, [deviceId]);
 
@@ -127,7 +127,7 @@ export function TrackedBillsClient() {
 
   function dismissBanner() {
     setBannerDismissed(true);
-    localStorage.setItem("bill-buddy-email-banner-dismissed", "true");
+    localStorage.setItem("billbrief-email-banner-dismissed", "true");
   }
 
   async function untrack(billId: string) {

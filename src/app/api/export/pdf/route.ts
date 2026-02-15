@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
     // --- Header ---
     doc.setFontSize(8);
     doc.setTextColor(130, 130, 130);
-    doc.text("Bill Buddy - UK Parliament Bills Made Simple", marginLeft, 15);
+    doc.text("BillBrief - UK Parliament Bills Made Simple", marginLeft, 15);
     doc.text(
       `Generated ${new Date().toLocaleDateString("en-GB", {
         day: "numeric",
@@ -273,7 +273,7 @@ export async function POST(request: NextRequest) {
       doc.setFontSize(7);
       doc.setTextColor(150, 150, 150);
       doc.text(
-        "Powered by Bill Buddy - billbuddy.uk",
+        "Powered by BillBrief - billbrief.co.uk",
         marginLeft,
         287
       );

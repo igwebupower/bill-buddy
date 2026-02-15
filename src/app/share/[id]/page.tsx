@@ -86,7 +86,7 @@ export async function generateMetadata({
     };
   }
 
-  const title = `${data.shortTitle} | Bill Buddy`;
+  const title = `${data.shortTitle} | BillBrief`;
   const description =
     data.tldr || data.longTitle || "AI-powered summary of a UK Parliamentary bill.";
 
@@ -97,7 +97,7 @@ export async function generateMetadata({
       title,
       description,
       type: "article",
-      siteName: "Bill Buddy",
+      siteName: "BillBrief",
       url: `/share/${id}`,
     },
     twitter: {
@@ -238,7 +238,7 @@ export default async function SharePage({ params }: SharePageProps) {
             className="inline-flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary transition-colors"
           >
             <ScrollText className="h-4 w-4" />
-            Bill Buddy
+            BillBrief
           </Link>
           <p className="text-xs text-muted-foreground text-center">
             AI-powered plain-English summaries of UK Parliamentary bills

@@ -10,10 +10,10 @@ export function useDeviceId(): string | null {
   const [deviceId, setDeviceId] = useState<string | null>(null);
 
   useEffect(() => {
-    let id = localStorage.getItem("bill-buddy-device-id");
+    let id = localStorage.getItem("billbrief-device-id");
     if (!id) {
       id = generateId();
-      localStorage.setItem("bill-buddy-device-id", id);
+      localStorage.setItem("billbrief-device-id", id);
     }
     setDeviceId(id);
   }, []);

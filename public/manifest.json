@@ -1,6 +1,6 @@
 {
-  "name": "Bill Buddy",
-  "short_name": "Bill Buddy",
+  "name": "BillBrief",
+  "short_name": "BillBrief",
   "description": "AI-powered plain-English summaries of UK Parliamentary bills",
   "start_url": "/",
   "display": "standalone",

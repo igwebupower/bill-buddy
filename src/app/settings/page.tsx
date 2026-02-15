@@ -3,7 +3,7 @@ import { SettingsClient } from "./SettingsClient";
 
 export const metadata: Metadata = {
   title: "Settings",
-  description: "Manage your Bill Buddy preferences",
+  description: "Manage your BillBrief preferences",
 };
 
 export default function SettingsPage() {

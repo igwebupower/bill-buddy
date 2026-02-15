@@ -38,7 +38,7 @@ self.addEventListener("push", (event) => {
     icon: "/icons/icon-192.png",
     badge: "/icons/icon-192.png",
     data: data.data,
-    tag: data.tag || "bill-buddy",
+    tag: data.tag || "billbrief",
   };
 
   event.waitUntil(self.registration.showNotification(data.title, options));

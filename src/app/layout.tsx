@@ -20,8 +20,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Bill Buddy - UK Parliament Bills Made Simple",
-    template: "%s | Bill Buddy",
+    default: "BillBrief - UK Parliament Bills Made Simple",
+    template: "%s | BillBrief",
   },
   description:
     "AI-powered plain-English summaries of UK Parliamentary bills. Track legislation, get alerts, and understand how new laws affect you.",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Bill Buddy",
+    title: "BillBrief",
   },
 };
 

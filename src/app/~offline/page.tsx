@@ -11,7 +11,7 @@ export default function OfflinePage() {
         <WifiOff className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
         <h1 className="text-xl font-semibold mb-2">You are offline</h1>
         <p className="text-muted-foreground mb-6">
-          Bill Buddy needs an internet connection to fetch the latest bills and
+          BillBrief needs an internet connection to fetch the latest bills and
           generate AI summaries. Previously viewed bills may still be available
           in your cache.
         </p>
