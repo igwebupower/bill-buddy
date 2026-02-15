@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { AppShell } from "@/components/layout/AppShell";
 import { InstallPrompt } from "@/components/shared/InstallPrompt";
 import { OfflineIndicator } from "@/components/shared/OfflineIndicator";
+import { CookieBanner } from "@/components/shared/CookieBanner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -56,6 +57,7 @@ export default function RootLayout({
           <OfflineIndicator />
           <AppShell>{children}</AppShell>
           <InstallPrompt />
+          <CookieBanner />
           <Toaster />
         </TooltipProvider>
       </body>
