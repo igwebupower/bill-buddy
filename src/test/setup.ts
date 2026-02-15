@@ -14,7 +14,7 @@ vi.mock("@/lib/db", () => ({
     },
     billStage: { upsert: vi.fn() },
     billSponsor: { upsert: vi.fn() },
-    billSummary: { create: vi.fn() },
+    billSummary: { create: vi.fn(), findFirst: vi.fn(), findMany: vi.fn() },
     trackedBill: {
       findMany: vi.fn(),
       upsert: vi.fn(),

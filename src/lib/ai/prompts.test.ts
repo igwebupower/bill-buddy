@@ -1,9 +1,11 @@
 import { describe, it, expect } from "vitest";
 import {
   BILL_SUMMARY_SYSTEM,
+  LETTER_DRAFT_SYSTEM,
   billSummaryPrompt,
   topicClassifyPrompt,
   translatePrompt,
+  draftLetterPrompt,
 } from "./prompts";
 
 describe("BILL_SUMMARY_SYSTEM", () => {
@@ -114,5 +116,100 @@ describe("translatePrompt", () => {
   it("mentions preserving JSON structure", () => {
     const result = translatePrompt(mockSummary, "German");
     expect(result).toContain("same structure");
+  });
+});
+
+describe("LETTER_DRAFT_SYSTEM", () => {
+  it("is a non-empty string with key instructions", () => {
+    expect(typeof LETTER_DRAFT_SYSTEM).toBe("string");
+    expect(LETTER_DRAFT_SYSTEM.length).toBeGreaterThan(0);
+    expect(LETTER_DRAFT_SYSTEM).toContain("300 words");
+    expect(LETTER_DRAFT_SYSTEM).toContain("respectful");
+  });
+});
+
+describe("draftLetterPrompt", () => {
+  it("includes bill title, MP name, and constituency", () => {
+    const result = draftLetterPrompt(
+      "Education Reform Bill",
+      "A bill to reform education standards",
+      "Jane Smith MP",
+      "Bristol West",
+      "support"
+    );
+
+    expect(result).toContain("Education Reform Bill");
+    expect(result).toContain("Jane Smith MP");
+    expect(result).toContain("Bristol West");
+  });
+
+  it("includes support stance text", () => {
+    const result = draftLetterPrompt(
+      "Test Bill",
+      "Summary",
+      "MP Name",
+      "Constituency",
+      "support"
+    );
+    expect(result).toContain("supports this bill");
+    expect(result).toContain("back it");
+  });
+
+  it("includes oppose stance text", () => {
+    const result = draftLetterPrompt(
+      "Test Bill",
+      "Summary",
+      "MP Name",
+      "Constituency",
+      "oppose"
+    );
+    expect(result).toContain("opposes this bill");
+    expect(result).toContain("vote against");
+  });
+
+  it("includes concerned stance text", () => {
+    const result = draftLetterPrompt(
+      "Test Bill",
+      "Summary",
+      "MP Name",
+      "Constituency",
+      "concerned"
+    );
+    expect(result).toContain("concerns");
+    expect(result).toContain("scrutinise");
+  });
+
+  it("includes personal note when provided", () => {
+    const result = draftLetterPrompt(
+      "Test Bill",
+      "Summary",
+      "MP Name",
+      "Constituency",
+      "support",
+      "As a teacher, I see the impact daily"
+    );
+    expect(result).toContain("As a teacher, I see the impact daily");
+  });
+
+  it("omits personal note section when not provided", () => {
+    const result = draftLetterPrompt(
+      "Test Bill",
+      "Summary",
+      "MP Name",
+      "Constituency",
+      "support"
+    );
+    expect(result).not.toContain("also wants to mention");
+  });
+
+  it("includes the bill summary in the prompt", () => {
+    const result = draftLetterPrompt(
+      "Test Bill",
+      "This bill reforms healthcare access for rural communities.",
+      "MP Name",
+      "Constituency",
+      "support"
+    );
+    expect(result).toContain("reforms healthcare access for rural communities");
   });
 });

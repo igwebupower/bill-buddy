@@ -78,16 +78,19 @@ export function BillDetailClient({ id }: BillDetailClientProps) {
   const [bill, setBill] = useState<BillDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [language, setLanguage] = useState("en");
+  const [language, setLanguage] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("bill-buddy-language") || "en";
+    }
+    return "en";
+  });
   const [showWriteToMP, setShowWriteToMP] = useState(false);
 
   useEffect(() => {
-    const savedLang = localStorage.getItem("bill-buddy-language") || "en";
-    setLanguage(savedLang);
-
     async function load() {
       try {
-        const langParam = savedLang !== "en" ? `?language=${savedLang}` : "";
+        setLoading(true);
+        const langParam = language !== "en" ? `?language=${language}` : "";
         const res = await fetch(`/api/bills/${id}${langParam}`);
         if (!res.ok) throw new Error("Bill not found");
         const data = await res.json();
@@ -99,7 +102,7 @@ export function BillDetailClient({ id }: BillDetailClientProps) {
       }
     }
     load();
-  }, [id]);
+  }, [id, language]);
 
   if (loading) {
     return (

@@ -50,13 +50,22 @@ export function SummarySection({ billId, existingSummary, language: propLanguage
       : JSON.parse(summary.impacts as string)
     : [];
 
-  // Read language from localStorage if not provided via props
+  // Sync language when the parent prop changes (e.g. after reading localStorage)
   useEffect(() => {
-    const saved = localStorage.getItem("bill-buddy-language");
-    if (saved && saved !== summaryLanguage) {
-      setSummaryLanguage(saved);
+    if (propLanguage && propLanguage !== summaryLanguage) {
+      setSummaryLanguage(propLanguage);
     }
-  }, []);
+  }, [propLanguage]);
+
+  // Fallback: read language from localStorage on mount if no prop provided
+  useEffect(() => {
+    if (!propLanguage) {
+      const saved = localStorage.getItem("bill-buddy-language");
+      if (saved && saved !== "en") {
+        setSummaryLanguage(saved);
+      }
+    }
+  }, [propLanguage]);
 
   async function generateSummary() {
     setLoading(true);
