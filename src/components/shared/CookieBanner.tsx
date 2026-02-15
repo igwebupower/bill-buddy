@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Cookie, X } from "lucide-react";
+import { Cookie } from "lucide-react";
 
 const CONSENT_KEY = "bill-buddy-cookie-consent";
 
@@ -24,38 +23,24 @@ export function CookieBanner() {
   if (!visible) return null;
 
   return (
-    <Card className="fixed bottom-20 left-4 right-4 z-50 p-4 border-primary/20 bg-card shadow-xl lg:bottom-4 lg:left-4 lg:right-auto lg:w-[420px]">
-      <div className="flex items-start gap-3">
-        <Cookie className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-        <div className="flex-1">
-          <p className="text-sm font-medium">Cookies &amp; Local Storage</p>
-          <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-            Bill Buddy uses local storage to save your preferences (theme,
-            language, tracked bills) and a device ID for push notifications.
-            If you subscribe to bill tracking, your email is stored to send
-            stage-change alerts. We don&apos;t use analytics cookies or share
-            your data with third parties.
-          </p>
-          <div className="flex items-center gap-3 mt-3">
-            <Button size="sm" onClick={accept}>
-              Got it
-            </Button>
-            <Link
-              href="/privacy"
-              onClick={accept}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Privacy Policy
-            </Link>
-          </div>
-        </div>
-        <button
-          onClick={accept}
-          className="text-muted-foreground hover:text-foreground"
-        >
-          <X className="h-4 w-4" />
-        </button>
+    <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-glass-border bg-card/95 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.15)] lg:bottom-0">
+      <div className="mx-auto max-w-5xl px-4 py-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+        <Cookie className="h-4 w-4 text-primary shrink-0 hidden sm:block" />
+        <p className="flex-1 text-xs text-muted-foreground leading-relaxed">
+          We use local storage for your preferences and a device ID for
+          notifications. No analytics or third-party tracking.{" "}
+          <Link
+            href="/privacy"
+            onClick={accept}
+            className="text-primary hover:underline"
+          >
+            Privacy Policy
+          </Link>
+        </p>
+        <Button size="sm" onClick={accept} className="shrink-0 self-end sm:self-auto">
+          Got it
+        </Button>
       </div>
-    </Card>
+    </div>
   );
 }
