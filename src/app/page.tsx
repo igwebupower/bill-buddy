@@ -57,9 +57,9 @@ const features = [
   },
 ];
 
-const stats = [
-  { label: "Bills Tracked", value: 350, suffix: "+" },
-  { label: "AI Summaries", value: 120, suffix: "+" },
+const defaultStats = [
+  { label: "Bills Tracked", value: 0, suffix: "+" },
+  { label: "AI Summaries", value: 0, suffix: "+" },
   { label: "Languages", value: 5 },
 ];
 
@@ -83,6 +83,7 @@ export default function HomePage() {
   const [query, setQuery] = useState("");
   const [featured, setFeatured] = useState<FeaturedBill[]>([]);
   const [loadingFeatured, setLoadingFeatured] = useState(true);
+  const [stats, setStats] = useState(defaultStats);
 
   useEffect(() => {
     async function loadFeatured() {
@@ -96,7 +97,21 @@ export default function HomePage() {
         setLoadingFeatured(false);
       }
     }
+    async function loadStats() {
+      try {
+        const res = await fetch("/api/stats");
+        const data = await res.json();
+        setStats([
+          { label: "Bills Tracked", value: data.bills || 0, suffix: "+" },
+          { label: "AI Summaries", value: data.summaries || 0, suffix: "+" },
+          { label: "Languages", value: data.languages || 5 },
+        ]);
+      } catch {
+        // keep defaults
+      }
+    }
     loadFeatured();
+    loadStats();
   }, []);
 
   function handleSearch(e: React.FormEvent) {

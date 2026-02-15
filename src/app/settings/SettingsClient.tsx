@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Bell, Moon, Sun, Globe, Trash2 } from "lucide-react";
+import { Bell, Moon, Sun, Globe, Trash2, AlertCircle } from "lucide-react";
 import { useDeviceId } from "@/hooks/useDeviceId";
 import { toast } from "sonner";
 import { GlassCard } from "@/components/shared/GlassCard";
@@ -32,18 +32,23 @@ export function SettingsClient() {
   const [notificationPermission, setNotificationPermission] = useState<
     "default" | "granted" | "denied"
   >("default");
+  const [vapidAvailable, setVapidAvailable] = useState(false);
 
   useEffect(() => {
     const isDark = document.documentElement.classList.contains("dark");
     setDarkMode(isDark);
 
     if ("Notification" in window) {
-      setNotificationPermission(Notification.permission as "default" | "granted" | "denied");
+      setNotificationPermission(
+        Notification.permission as "default" | "granted" | "denied"
+      );
       setNotificationsEnabled(Notification.permission === "granted");
     }
 
     const savedLang = localStorage.getItem("bill-buddy-language");
     if (savedLang) setLanguage(savedLang);
+
+    setVapidAvailable(!!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY);
   }, []);
 
   function toggleTheme(dark: boolean) {
@@ -71,8 +76,15 @@ export function SettingsClient() {
       return;
     }
 
+    if (!vapidAvailable) {
+      toast.error("Push notifications are not configured yet");
+      return;
+    }
+
     const permission = await Notification.requestPermission();
-    setNotificationPermission(permission as "default" | "granted" | "denied");
+    setNotificationPermission(
+      permission as "default" | "granted" | "denied"
+    );
 
     if (permission === "granted") {
       setNotificationsEnabled(true);
@@ -137,6 +149,19 @@ export function SettingsClient() {
     }
   }
 
+  function clearAllData() {
+    const keys = [
+      "bill-buddy-device-id",
+      "bill-buddy-language",
+      "bill-buddy-theme",
+      "bill-buddy-postcode",
+      "bill-buddy-cookie-consent",
+    ];
+    keys.forEach((key) => localStorage.removeItem(key));
+    toast("All local data cleared. Reloading...");
+    setTimeout(() => window.location.reload(), 1000);
+  }
+
   return (
     <div className="space-y-6">
       {/* Appearance */}
@@ -174,9 +199,7 @@ export function SettingsClient() {
         </h2>
 
         <div className="flex items-center justify-between">
-          <Label className="text-sm">
-            Preferred summary language
-          </Label>
+          <Label className="text-sm">Preferred summary language</Label>
           <Select value={language} onValueChange={changeLanguage}>
             <SelectTrigger className="w-[180px]">
               <SelectValue />
@@ -222,14 +245,24 @@ export function SettingsClient() {
                 disableNotifications();
               }
             }}
-            disabled={notificationPermission === "denied"}
+            disabled={
+              notificationPermission === "denied" || !vapidAvailable
+            }
           />
         </div>
 
         {notificationPermission === "denied" && (
-          <p className="text-xs text-destructive">
+          <p className="text-xs text-destructive flex items-center gap-1">
+            <AlertCircle className="h-3 w-3 shrink-0" />
             Notifications are blocked by your browser. Please enable them in
             your browser settings.
+          </p>
+        )}
+
+        {!vapidAvailable && notificationPermission !== "denied" && (
+          <p className="text-xs text-muted-foreground flex items-center gap-1">
+            <AlertCircle className="h-3 w-3 shrink-0" />
+            Push notifications are not yet configured for this deployment.
           </p>
         )}
       </GlassCard>
@@ -253,6 +286,16 @@ export function SettingsClient() {
             Device ID: {deviceId.slice(0, 8)}...
           </p>
         )}
+
+        <Button
+          variant="outline"
+          size="sm"
+          className="text-destructive hover:text-destructive"
+          onClick={clearAllData}
+        >
+          <Trash2 className="h-3.5 w-3.5 mr-2" />
+          Clear all local data
+        </Button>
       </GlassCard>
     </div>
   );
