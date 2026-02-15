@@ -5,6 +5,9 @@ import { getBillById } from "@/lib/parliament/client";
 import { anthropic } from "@/lib/ai/client";
 import { BILL_SUMMARY_SYSTEM, translatePrompt } from "@/lib/ai/prompts";
 
+// Allow up to 60s for AI summary generation + translation
+export const maxDuration = 60;
+
 const SUPPORTED_LANGUAGES: Record<string, string> = {
   cy: "Welsh",
   ur: "Urdu",

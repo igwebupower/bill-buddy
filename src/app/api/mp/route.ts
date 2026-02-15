@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
   try {
     // Look up constituency and MP by postcode
     const constituencyRes = await fetch(
-      `${MEMBERS_API}/Location/Constituency/Search/${encodeURIComponent(postcode.trim())}`,
+      `${MEMBERS_API}/Location/Constituency/Search?searchText=${encodeURIComponent(postcode.trim())}&skip=0&take=1`,
       { headers: { Accept: "application/json" } }
     );
 

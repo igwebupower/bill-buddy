@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { anthropic } from "@/lib/ai/client";
 import { LETTER_DRAFT_SYSTEM, draftLetterPrompt } from "@/lib/ai/prompts";
 
+// Allow up to 30s for AI letter generation
+export const maxDuration = 30;
+
 const MODEL = "claude-sonnet-4-5-20250929";
 
 export async function POST(request: NextRequest) {

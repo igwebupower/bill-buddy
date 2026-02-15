@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -66,6 +66,21 @@ export function SummarySection({ billId, existingSummary, language: propLanguage
       }
     }
   }, [propLanguage]);
+
+  // Auto-translate: if we have an English summary but user wants another
+  // language, automatically request a translation on mount.
+  const hasAutoTranslated = useRef(false);
+  useEffect(() => {
+    if (
+      summaryLanguage !== "en" &&
+      existingSummary &&
+      !hasAutoTranslated.current &&
+      !loading
+    ) {
+      hasAutoTranslated.current = true;
+      generateSummary();
+    }
+  }, [summaryLanguage, existingSummary]);
 
   async function generateSummary() {
     setLoading(true);
