@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Cookie, X } from "lucide-react";
@@ -35,10 +36,17 @@ export function CookieBanner() {
             stage-change alerts. We don&apos;t use analytics cookies or share
             your data with third parties.
           </p>
-          <div className="flex gap-2 mt-3">
+          <div className="flex items-center gap-3 mt-3">
             <Button size="sm" onClick={accept}>
               Got it
             </Button>
+            <Link
+              href="/privacy"
+              onClick={accept}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Privacy Policy
+            </Link>
           </div>
         </div>
         <button
