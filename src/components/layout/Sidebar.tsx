@@ -113,9 +113,6 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
         {/* Footer */}
         <div className="border-t border-border p-4 space-y-2">
-          <p className="text-xs text-muted-foreground">
-            Data from UK Parliament API
-          </p>
           <div className="flex gap-3">
             <Link
               href="/privacy"
