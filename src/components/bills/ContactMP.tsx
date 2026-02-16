@@ -68,13 +68,29 @@ export function ContactMP({ billTitle }: ContactMPProps) {
     }
   }
 
+  function getEmailParts() {
+    if (!mp?.email) return null;
+    const subject = `Regarding: ${billTitle}`;
+    const body = `Dear ${mp.name},\n\nI am writing to you as your constituent regarding the ${billTitle} currently before Parliament.\n\n[Please add your views here]\n\nYours sincerely,\n[Your name]\n[Your address]`;
+    return { to: mp.email, subject, body };
+  }
+
   function buildMailtoLink() {
-    if (!mp?.email) return "";
-    const subject = encodeURIComponent(`Regarding: ${billTitle}`);
-    const body = encodeURIComponent(
-      `Dear ${mp.name},\n\nI am writing to you as your constituent regarding the ${billTitle} currently before Parliament.\n\n[Please add your views here]\n\nYours sincerely,\n[Your name]\n[Your address]`
-    );
-    return `mailto:${mp.email}?subject=${subject}&body=${body}`;
+    const parts = getEmailParts();
+    if (!parts) return "";
+    return `mailto:${parts.to}?subject=${encodeURIComponent(parts.subject)}&body=${encodeURIComponent(parts.body)}`;
+  }
+
+  function buildGmailLink() {
+    const parts = getEmailParts();
+    if (!parts) return "";
+    return `https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(parts.to)}&su=${encodeURIComponent(parts.subject)}&body=${encodeURIComponent(parts.body)}`;
+  }
+
+  function buildOutlookLink() {
+    const parts = getEmailParts();
+    if (!parts) return "";
+    return `https://outlook.live.com/mail/0/deeplink/compose?to=${encodeURIComponent(parts.to)}&subject=${encodeURIComponent(parts.subject)}&body=${encodeURIComponent(parts.body)}`;
   }
 
   return (
@@ -147,12 +163,35 @@ export function ContactMP({ billTitle }: ContactMPProps) {
           {/* Actions */}
           <div className="space-y-2">
             {mp.email && (
-              <Button asChild size="sm" className="w-full">
-                <a href={buildMailtoLink()}>
-                  <Mail className="h-3.5 w-3.5 mr-2" />
-                  Email Your MP
-                </a>
-              </Button>
+              <>
+                <p className="text-xs text-muted-foreground">Send via:</p>
+                <div className="grid grid-cols-3 gap-1.5">
+                  <Button asChild variant="outline" size="sm">
+                    <a
+                      href={buildGmailLink()}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Gmail
+                    </a>
+                  </Button>
+                  <Button asChild variant="outline" size="sm">
+                    <a
+                      href={buildOutlookLink()}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Outlook
+                    </a>
+                  </Button>
+                  <Button asChild variant="outline" size="sm">
+                    <a href={buildMailtoLink()}>
+                      <Mail className="h-3.5 w-3.5 mr-1" />
+                      Other
+                    </a>
+                  </Button>
+                </div>
+              </>
             )}
 
             {mp.website && (
