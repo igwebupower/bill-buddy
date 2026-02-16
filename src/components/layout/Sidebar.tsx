@@ -14,6 +14,7 @@ import {
   Heart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { BillBriefLogo } from "@/components/shared/BillBriefLogo";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navItems = [
@@ -59,9 +60,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         {/* Logo */}
         <div className="flex h-16 items-center justify-between border-b border-border px-5">
           <Link href="/" className="flex items-center gap-2.5" onClick={onClose}>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <ScrollText className="h-4.5 w-4.5 text-white" />
-            </div>
+            <BillBriefLogo className="h-8 w-7" />
             <span className="text-lg font-semibold tracking-tight">
               BillBrief
             </span>

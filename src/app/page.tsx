@@ -12,7 +12,6 @@ import { GlassCard } from "@/components/shared/GlassCard";
 import { AnimatedCounter } from "@/components/shared/AnimatedCounter";
 import {
   Search,
-  ScrollText,
   Bell,
   Share2,
   ArrowRight,
@@ -20,6 +19,7 @@ import {
   Mail,
   Heart,
 } from "lucide-react";
+import { BillBriefLogo } from "@/components/shared/BillBriefLogo";
 
 const springIn = {
   initial: { opacity: 0, y: 20 },
@@ -270,8 +270,8 @@ export default function HomePage() {
       {/* CTA */}
       <section className="text-center pb-8">
         <div className="rounded-2xl border border-border bg-card shadow-sm p-8">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
-            <ScrollText className="h-6 w-6 text-white" />
+          <div className="mx-auto mb-4">
+            <BillBriefLogo className="h-12 w-10 mx-auto" />
           </div>
           <h2 className="text-xl font-semibold mb-2">
             Stay informed about UK legislation
