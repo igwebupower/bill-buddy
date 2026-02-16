@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { upsertResendContact } from "@/lib/email";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -36,6 +37,11 @@ export async function POST(request: NextRequest) {
     create: { deviceId, email: email || null },
     update: { email: email || null },
   });
+
+  // Sync to Resend contacts for list-building
+  if (email) {
+    upsertResendContact(email);
+  }
 
   return NextResponse.json({ ok: true, email: email || null });
 }

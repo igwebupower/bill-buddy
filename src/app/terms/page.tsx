@@ -123,9 +123,9 @@ export default function TermsPage() {
       <GlassCard className="space-y-4">
         <h2 className="text-sm font-semibold">Changes to Terms</h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          We may update these terms from time to time. Continued use of Bill
-          Buddy after changes are published constitutes acceptance of the
-          revised terms.
+          We may update these terms from time to time. Continued use of
+          BillBrief after changes are published constitutes acceptance of
+          the revised terms.
         </p>
       </GlassCard>
 

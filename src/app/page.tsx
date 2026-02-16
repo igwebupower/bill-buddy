@@ -34,9 +34,9 @@ const stagger = {
 const features = [
   {
     icon: FileText,
-    title: "Plain English Summaries",
+    title: "Jargon-Free Summaries",
     description:
-      "Complex legal language translated into clear, plain English by Claude AI",
+      "Dense legal text automatically simplified into clear, everyday language",
   },
   {
     icon: Bell,
@@ -59,9 +59,9 @@ const features = [
 ];
 
 const defaultStats = [
+  { label: "Bills in Database", value: 0, suffix: "+" },
+  { label: "Summaries Generated", value: 0, suffix: "+" },
   { label: "Bills Tracked", value: 0, suffix: "+" },
-  { label: "Summaries", value: 0, suffix: "+" },
-  { label: "Users Tracking", value: 0, suffix: "+" },
 ];
 
 interface FeaturedBill {
@@ -103,9 +103,9 @@ export default function HomePage() {
         const res = await fetch("/api/stats");
         const data = await res.json();
         setStats([
-          { label: "Bills Tracked", value: data.bills || 0, suffix: "+" },
-          { label: "Summaries", value: data.summaries || 0, suffix: "+" },
-          { label: "Users Tracking", value: data.trackers || 0, suffix: "+" },
+          { label: "Bills in Database", value: data.bills || 0, suffix: "+" },
+          { label: "Summaries Generated", value: data.summaries || 0, suffix: "+" },
+          { label: "Bills Tracked", value: data.trackers || 0, suffix: "+" },
         ]);
       } catch {
         // keep defaults
@@ -194,27 +194,31 @@ export default function HomePage() {
         </motion.div>
       </motion.section>
 
-      {/* Stats row */}
-      <motion.section
-        className="grid grid-cols-3 gap-4"
-        initial="initial"
-        whileInView="animate"
-        viewport={{ once: true }}
-        variants={stagger}
-      >
-        {stats.map((stat) => (
-          <motion.div key={stat.label} variants={springIn}>
-            <GlassCard className="text-center py-6">
-              <AnimatedCounter
-                value={stat.value}
-                suffix={stat.suffix}
-                className="text-2xl font-bold text-primary font-mono-numbers"
-              />
-              <p className="text-xs text-muted-foreground mt-1">{stat.label}</p>
-            </GlassCard>
-          </motion.div>
-        ))}
-      </motion.section>
+      {/* Stats row – hidden when all values are zero */}
+      {stats.some((s) => s.value > 0) && (
+        <motion.section
+          className="grid grid-cols-3 gap-4"
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true }}
+          variants={stagger}
+        >
+          {stats.map((stat) => (
+            <motion.div key={stat.label} variants={springIn}>
+              <GlassCard className="text-center py-6">
+                <AnimatedCounter
+                  value={stat.value}
+                  suffix={stat.suffix}
+                  className="text-2xl font-bold text-primary font-mono-numbers"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {stat.label}
+                </p>
+              </GlassCard>
+            </motion.div>
+          ))}
+        </motion.section>
+      )}
 
       {/* Features */}
       <motion.section

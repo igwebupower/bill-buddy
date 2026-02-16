@@ -75,6 +75,8 @@ export async function GET(request: NextRequest) {
           for (const sub of subscribers) {
             if (!sub.device.email) continue;
 
+            const unsubUrl = `${appUrl}/api/unsubscribe?email=${encodeURIComponent(sub.device.email)}`;
+
             const subject = fresh.isAct
               ? `${bill.shortTitle} — Royal Assent`
               : `${bill.shortTitle} — Stage Change`;
@@ -94,7 +96,7 @@ export async function GET(request: NextRequest) {
                 </a>
                 <p style="color: #999; font-size: 12px; margin-top: 24px;">
                   You're receiving this because you tracked this bill on BillBrief.
-                  To stop email alerts, remove your email in Settings.
+                  <a href="${unsubUrl}" style="color: #999; text-decoration: underline;">Unsubscribe</a>
                 </p>
               </div>
             `;

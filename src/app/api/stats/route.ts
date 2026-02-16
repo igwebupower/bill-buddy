@@ -3,18 +3,16 @@ import { prisma } from "@/lib/db";
 
 export async function GET() {
   try {
-    const [billCount, summaryCount, trackerCount] = await Promise.all([
+    const [billCount, summaryCount, trackedCount] = await Promise.all([
       prisma.bill.count(),
       prisma.billSummary.count({ where: { language: "en" } }),
-      prisma.deviceProfile.count({
-        where: { trackedBills: { some: {} } },
-      }),
+      prisma.trackedBill.count(),
     ]);
 
     return NextResponse.json({
       bills: billCount,
       summaries: summaryCount,
-      trackers: trackerCount,
+      trackers: trackedCount,
     });
   } catch {
     // Fallback if DB is unavailable
