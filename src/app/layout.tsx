@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { AppShell } from "@/components/layout/AppShell";
@@ -60,6 +61,7 @@ export default function RootLayout({
           <CookieBanner />
           <Toaster />
         </TooltipProvider>
+        <Analytics />
       </body>
     </html>
   );
