@@ -32,17 +32,17 @@ function extractTextFromXml(xml: string): string {
   // Extract content from common legislation XML elements
   const sections: string[] = [];
 
-  // Match section headings
+  // Match section and schedule headings
   const headingPattern =
-    /<(?:Title|Pnumber|Number)[^>]*>(.*?)<\/(?:Title|Pnumber|Number)>/gs;
+    /<(?:Title|Pnumber|Number|TitleBlock)[^>]*>(.*?)<\/(?:Title|Pnumber|Number|TitleBlock)>/gs;
   let match;
   while ((match = headingPattern.exec(text)) !== null) {
     const content = stripTags(match[1]).trim();
     if (content) sections.push(`\n## ${content}`);
   }
 
-  // Match paragraph text
-  const paraPattern = /<(?:Text|P|Para|P1para|P2para)[^>]*>(.*?)<\/(?:Text|P|Para|P1para|P2para)>/gs;
+  // Match paragraph text — includes Schedule body and block amendment elements
+  const paraPattern = /<(?:Text|P|Para|P1para|P2para|ScheduleBody|Pblock|BlockAmendment)[^>]*>(.*?)<\/(?:Text|P|Para|P1para|P2para|ScheduleBody|Pblock|BlockAmendment)>/gs;
   while ((match = paraPattern.exec(text)) !== null) {
     const content = stripTags(match[1]).trim();
     if (content) sections.push(content);

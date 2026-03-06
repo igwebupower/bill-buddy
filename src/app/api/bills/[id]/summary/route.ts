@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { generateBillSummary } from "@/lib/ai/summarize";
-import { getBillById } from "@/lib/parliament/client";
+import { getBillById, getBillPublications } from "@/lib/parliament/client";
 
 export async function POST(
   _request: NextRequest,
@@ -15,6 +15,7 @@ export async function POST(
     // Try to find bill in DB
     let bill: {
       id: string;
+      parliamentId: number;
       shortTitle: string;
       longTitle: string;
       billTypeCategory: string | null;
@@ -106,12 +107,29 @@ export async function POST(
       return NextResponse.json({ error: "Bill not found" }, { status: 404 });
     }
 
+    // Fetch Explanatory Notes URL from Parliament publications API
+    // Use bill.parliamentId if the route was called with a UUID, falling back to parsed parliamentId
+    const resolvedParliamentId = bill?.parliamentId ?? (isNaN(parliamentId) ? null : parliamentId);
+    let explanatoryNotesUrl: string | null = null;
+    if (resolvedParliamentId) {
+      try {
+        const pubsRes = await getBillPublications(resolvedParliamentId);
+        const enPub = pubsRes.publications.find(
+          (p) => p.publicationType.name === "Explanatory Notes"
+        );
+        explanatoryNotesUrl = enPub?.links?.[0]?.url ?? null;
+      } catch {
+        // non-critical — proceed without EN
+      }
+    }
+
     // Generate summary
     const { summary, tokensUsed } = await generateBillSummary(
       shortTitle,
       longTitle,
       billTypeCategory,
-      legislationGovUrl
+      legislationGovUrl,
+      explanatoryNotesUrl
     );
 
     // Try to save to DB (non-critical)

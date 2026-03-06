@@ -183,6 +183,12 @@ export function BillDetailClient({ id }: BillDetailClientProps) {
           )}
         </div>
 
+        {bill.billTypeCategory === "Private Members'" && !bill.isAct && !bill.isDefeated && (
+          <div className="rounded-md border border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30 px-3 py-2 text-sm text-amber-800 dark:text-amber-300">
+            This is a Private Members&apos; Bill introduced by a backbench MP. Without Government support, most do not pass into law.
+          </div>
+        )}
+
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
           {bill.shortTitle}
         </h1>

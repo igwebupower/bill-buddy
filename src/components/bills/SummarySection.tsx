@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FileText, RefreshCw, AlertCircle, Users, List, Target, Clock } from "lucide-react";
+import { FileText, RefreshCw, AlertCircle, Users, List, Target, Clock, MapPin, ShieldAlert } from "lucide-react";
 import { GlassCard } from "@/components/shared/GlassCard";
 
 interface Summary {
@@ -14,6 +14,8 @@ interface Summary {
   keyChanges: string[] | string;
   impacts: Array<{ group: string; impact: string }> | string;
   implementation?: string | null;
+  extent?: string | null;
+  delegatedPowers?: string | null;
   tldr: string;
 }
 
@@ -106,9 +108,15 @@ export function SummarySection({ billId, existingSummary }: SummarySectionProps)
         <div className="absolute left-0 top-0 h-full w-1 bg-primary" />
         <div className="flex items-start gap-2 pl-3">
           <FileText className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-          <div>
+          <div className="flex-1 min-w-0">
             <p className="text-xs font-medium text-primary mb-1">TL;DR</p>
             <p className="text-sm font-medium">{summary.tldr}</p>
+            {summary.extent && summary.extent !== "Not specified in available text" && (
+              <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                <MapPin className="h-3 w-3 shrink-0" />
+                Applies to: {summary.extent}
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -181,10 +189,21 @@ export function SummarySection({ billId, existingSummary }: SummarySectionProps)
           </div>
         </TabsContent>
 
-        <TabsContent value="implementation" className="mt-4">
+        <TabsContent value="implementation" className="mt-4 space-y-4">
           <p className="text-sm leading-relaxed whitespace-pre-line">
             {summary.implementation || "Implementation timeline not yet specified."}
           </p>
+          {summary.delegatedPowers && summary.delegatedPowers.length > 20 && !/^none/i.test(summary.delegatedPowers.trim()) && !/^not assessed/i.test(summary.delegatedPowers.trim()) && (
+            <div className="rounded-md border border-orange-200 bg-orange-50 dark:border-orange-900 dark:bg-orange-950/30 p-3">
+              <p className="text-xs font-semibold text-orange-800 dark:text-orange-300 mb-1 flex items-center gap-1.5">
+                <ShieldAlert className="h-3.5 w-3.5" />
+                Ministerial Powers &amp; Delegated Legislation
+              </p>
+              <p className="text-xs text-orange-700 dark:text-orange-400 leading-relaxed">
+                {summary.delegatedPowers}
+              </p>
+            </div>
+          )}
         </TabsContent>
       </Tabs>
 

@@ -8,37 +8,50 @@ export interface BillSummaryData {
   keyChanges: string[];
   impacts: Array<{ group: string; impact: string }>;
   implementation: string;
+  extent: string;
+  delegatedPowers: string;
   tldr: string;
 }
 
-const MODEL = "claude-sonnet-4-5-20250929";
+const MODEL = "claude-sonnet-4-6";
 const MAX_BILL_TEXT_LENGTH = 80000; // ~20k tokens
+const MAX_EN_LENGTH = 20000; // ~5k tokens
 
 export async function generateBillSummary(
   title: string,
   longTitle: string,
   billType: string,
-  legislationUrl?: string | null
+  legislationUrl?: string | null,
+  explanatoryNotesUrl?: string | null
 ): Promise<{ summary: BillSummaryData; tokensUsed: number }> {
-  // Try to fetch full bill text
-  let billText = "";
-  if (legislationUrl) {
-    try {
-      billText = await fetchBillText(legislationUrl);
-    } catch (error) {
-      console.warn("Could not fetch bill text from legislation.gov.uk:", error);
-    }
-  }
+  // Fetch bill text and explanatory notes in parallel
+  const [billText, explanatoryNotes] = await Promise.all([
+    legislationUrl
+      ? fetchBillText(legislationUrl).catch((err) => {
+          console.warn("Could not fetch bill text from legislation.gov.uk:", err);
+          return "";
+        })
+      : Promise.resolve(""),
+    explanatoryNotesUrl
+      ? fetchBillText(explanatoryNotesUrl).catch((err) => {
+          console.warn("Could not fetch explanatory notes:", err);
+          return "";
+        })
+      : Promise.resolve(""),
+  ]);
 
-  // If no text, use the long title as context
-  if (!billText) {
-    billText = longTitle;
-  }
+  // Fall back to long title if no bill text fetched
+  const finalBillText = billText || longTitle;
 
-  // Truncate if too long
-  if (billText.length > MAX_BILL_TEXT_LENGTH) {
-    billText = billText.slice(0, MAX_BILL_TEXT_LENGTH) + "\n\n[Text truncated]";
-  }
+  const truncatedBillText =
+    finalBillText.length > MAX_BILL_TEXT_LENGTH
+      ? finalBillText.slice(0, MAX_BILL_TEXT_LENGTH) + "\n\n[Text truncated]"
+      : finalBillText;
+
+  const truncatedEN =
+    explanatoryNotes.length > MAX_EN_LENGTH
+      ? explanatoryNotes.slice(0, MAX_EN_LENGTH) + "\n\n[Truncated]"
+      : explanatoryNotes;
 
   const response = await anthropic.messages.create({
     model: MODEL,
@@ -47,7 +60,13 @@ export async function generateBillSummary(
     messages: [
       {
         role: "user",
-        content: billSummaryPrompt(title, longTitle, billText, billType),
+        content: billSummaryPrompt(
+          title,
+          longTitle,
+          truncatedBillText,
+          billType,
+          truncatedEN || undefined
+        ),
       },
     ],
   });
@@ -63,7 +82,7 @@ export async function generateBillSummary(
   const cleaned = text.replace(/```json\n?|\n?```/g, "").trim();
   const summary = JSON.parse(cleaned) as BillSummaryData;
 
-  // Validate structure
+  // Validate required fields
   if (
     !summary.overview ||
     !summary.purpose ||
@@ -73,6 +92,10 @@ export async function generateBillSummary(
   ) {
     throw new Error("Invalid summary structure from AI");
   }
+
+  // Default new fields for summaries generated without them (graceful)
+  summary.extent = summary.extent || "Not specified in available text";
+  summary.delegatedPowers = summary.delegatedPowers || "Not assessed";
 
   return { summary, tokensUsed };
 }
